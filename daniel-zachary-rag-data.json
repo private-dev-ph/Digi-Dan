@@ -1,0 +1,458 @@
+{
+  "documents": [
+    {
+      "id": "about-profile-summary",
+      "text": "Daniel Zachary M. Mercurio is a Software Developer. Computer engineer and software developer from Subic, Zambales building end-to-end systems across full-stack development, databases, computer vision, LLMs, RAG, machine learning, and automation. Experienced with industrial AI inspection, augmented-reality PCB tooling, local and cloud LLM support systems, VBA workflow automation, QGIS mapping, and portfolio-scale web development. Key highlights: Lead developer for AI-powered computer vision AOI system at Wistron Infocomm; Built full-stack AI systems with board capture, local processing, custom vision models, and industrial-grade inspection datasets; Reduced motherboard inspection time by 150% and motherboard net tracing time by 60%; Developed augmented reality board schematic tooling for PCB design, analysis, board tracking, and accuracy; Built local and cloud-based LLM RAG support over proprietary company data; Completed BS Computer Engineering with GWA 1.66 and Best in Thesis Award.",
+      "metadata": {
+        "section": "about",
+        "topic": "profile_summary",
+        "name": "Daniel Zachary M. Mercurio",
+        "title": "Software Developer"
+      }
+    },
+    {
+      "id": "about-philosophy-frontend",
+      "text": "I build practical interfaces around developer and operator workflows, using web technologies such as HTML, CSS, JavaScript, React, Vue, Angular, and Shopify when the goal is a usable product surface.",
+      "metadata": {
+        "section": "about",
+        "topic": "philosophy_frontend"
+      }
+    },
+    {
+      "id": "about-philosophy-backend",
+      "text": "I approach backend work as the system layer that makes automation useful: databases, APIs, local processing, PHP/R/SQL tooling, and data-backed workflows that reduce manual effort.",
+      "metadata": {
+        "section": "about",
+        "topic": "philosophy_backend"
+      }
+    },
+    {
+      "id": "about-philosophy-ai-vision",
+      "text": "I build AI and computer vision systems from data capture through model training and deployment, including OpenCV, YOLO, CNNs, OpenVINO, MLOps, edge AI, and annotation pipelines.",
+      "metadata": {
+        "section": "about",
+        "topic": "philosophy_ai_vision"
+      }
+    },
+    {
+      "id": "about-philosophy-automation",
+      "text": "I look for repeated work that can become software: VBA Excel automation, QGIS mapping updates, database cleanup, job order processing, and internal support tools.",
+      "metadata": {
+        "section": "about",
+        "topic": "philosophy_automation"
+      }
+    },
+    {
+      "id": "education-college",
+      "text": "Daniel Zachary M. Mercurio completed Bachelor of Science in Computer Engineering at President Ramon Magsaysay State University in Iba, Zambales, Philippines from 2021 - 2025. Best in Thesis Award recipient; major in Software Development; thesis/project work included DenseNet-121 powered rice leaf disease identification. Coursework included Software Development; Computer Engineering; Machine Learning; Database Management; CAD and Design; Embedded Systems; Web Development. Details: GWA: 1.66; Best in Thesis Award, June 23, 2025.",
+      "metadata": {
+        "section": "education",
+        "topic": "college",
+        "degree": "Bachelor of Science in Computer Engineering",
+        "university": "President Ramon Magsaysay State University",
+        "duration": "2021 - 2025"
+      }
+    },
+    {
+      "id": "education-previous-1",
+      "text": "Daniel completed STEM Graduate at Saint James School of Subic Inc. from 2019 - 2021. Highlights: Grade 11 With Honors; Grade 12 With High Honors.",
+      "metadata": {
+        "section": "education",
+        "topic": "previous_education",
+        "school": "Saint James School of Subic Inc.",
+        "duration": "2019 - 2021"
+      }
+    },
+    {
+      "id": "skills-domains",
+      "text": "Daniel's domains include: Software Development; AI/ML Engineering; Computer Vision; Industrial Automation; Full Stack Development; Database Management; Edge AI; MLOps; CAD and Design; Embedded Systems.",
+      "metadata": {
+        "section": "skills",
+        "topic": "domains",
+        "count": 10
+      }
+    },
+    {
+      "id": "skills-languages",
+      "text": "Daniel's languages include: C++; Python; C#; Java; Dart; Rust; Arduino; MicroPython; HTML; CSS; JavaScript; PHP; R; SQL; VBA.",
+      "metadata": {
+        "section": "skills",
+        "topic": "languages",
+        "count": 15
+      }
+    },
+    {
+      "id": "skills-ai-ml",
+      "text": "Daniel's ai ml include: OpenCV; YOLO; YOLOv8; CNN; DenseNet-121; OpenVINO; LLM; RAG; Agentic AI; MLOps; Edge AI; TensorFlow; Kaggle; Jupyter Notebook; Self-supervised learning; Knowledge distillation.",
+      "metadata": {
+        "section": "skills",
+        "topic": "ai_ml",
+        "count": 16
+      }
+    },
+    {
+      "id": "skills-frameworks",
+      "text": "Daniel's frameworks include: React; Node.js; Vue; Angular; Flutter; Next.js.",
+      "metadata": {
+        "section": "skills",
+        "topic": "frameworks",
+        "count": 6
+      }
+    },
+    {
+      "id": "skills-databases",
+      "text": "Daniel's databases include: SQL; NoSQL; PHP-backed database tooling; R-based data workflows.",
+      "metadata": {
+        "section": "skills",
+        "topic": "databases",
+        "count": 4
+      }
+    },
+    {
+      "id": "skills-tools",
+      "text": "Daniel's tools include: Git; GitHub; Docker; Figma; Power BI; Kaggle; Jupyter; QGIS; Microsoft Word; Microsoft Excel; Microsoft Publisher; Microsoft PowerPoint; Proteus; AutoCAD; EasyEDA; Blender; SketchUp; Shopify.",
+      "metadata": {
+        "section": "skills",
+        "topic": "tools",
+        "count": 18
+      }
+    },
+    {
+      "id": "skills-core-stack",
+      "text": "Daniel's core stack include: Python; OpenCV; YOLO; OpenVINO; LLM; RAG; SQL; React; Node.js; Docker; Git; QGIS; VBA.",
+      "metadata": {
+        "section": "skills",
+        "topic": "core_stack",
+        "count": 13
+      }
+    },
+    {
+      "id": "experience-wistron-infocomm--phil",
+      "text": "Daniel worked as Software/Automations Engineer at Wistron Infocomm, Phil. from 2025 - Present as full-time. Highlights: Lead developer of AI-powered computer vision AOI system; Engineered a full-stack AI system including board capture, local processing, and custom vision models; Streamlined the AI data pipeline with cleaned and annotated datasets for industrial-grade inspection; Reduced motherboard inspection time by 150%; Showcased AI inspection work to international customers including HP, Dell, and Zebra; Optimized computer vision system to run on edge devices; Managed end-to-end data pipeline including collection, cleaning, and precision annotation for model training; Led augmented reality board schematic system development; Reduced motherboard net tracing time by 60%; Developed PCB design and analysis tooling with optimized board tracking and accuracy; Developed company LLM RAG system with local and cloud-based support over proprietary company data.",
+      "metadata": {
+        "section": "experience",
+        "topic": "Wistron Infocomm, Phil.",
+        "role": "Software/Automations Engineer",
+        "company": "Wistron Infocomm, Phil.",
+        "duration": "2025 - Present",
+        "type": "full-time"
+      }
+    },
+    {
+      "id": "experience-zameco-ii",
+      "text": "Daniel worked as IT and Administrative Work - OJT at ZAMECO II from June - July 2024 as on-the-job training. Highlights: Completed 240 hours of on-the-job training; Implemented VBA automation scripts for Excel sheets with 30% productivity increase; Increased productivity of job order completion by 30%; Managed and sorted four years of backlogged data and job orders; Implemented updated mapping technology using QGIS; Improved efficiency of administrative tasks and workplace environment.",
+      "metadata": {
+        "section": "experience",
+        "topic": "ZAMECO II",
+        "role": "IT and Administrative Work - OJT",
+        "company": "ZAMECO II",
+        "duration": "June - July 2024",
+        "type": "on-the-job training"
+      }
+    },
+    {
+      "id": "project-ai-powered-computer-vision-aoi-system",
+      "text": "Project: AI-Powered Computer Vision AOI System. Full-stack industrial inspection system with board capture, local processing, cleaned and annotated datasets, and custom vision models optimized for edge devices. Reduced motherboard inspection time by 150% and was showcased to international customers. Category: AI/ML. Skills used: Python; OpenCV; YOLO; CNN; OpenVINO; Edge AI; MLOps; Data Annotation. Status or date: production. Link: not specified.",
+      "metadata": {
+        "section": "projects",
+        "topic": "AI-Powered Computer Vision AOI System",
+        "name": "AI-Powered Computer Vision AOI System",
+        "category": "AI/ML",
+        "status": "production"
+      }
+    },
+    {
+      "id": "project-augmented-reality-board-schematic-system",
+      "text": "Project: Augmented Reality Board Schematic System. PCB design and analysis tool for AR-assisted board schematic workflows. Optimized board tracking and accuracy while reducing motherboard net tracing time by 60%. Category: Production. Skills used: Computer Vision; Augmented Reality; Python; PCB Analysis; CAD. Status or date: production. Link: not specified.",
+      "metadata": {
+        "section": "projects",
+        "topic": "Augmented Reality Board Schematic System",
+        "name": "Augmented Reality Board Schematic System",
+        "category": "Production",
+        "status": "production"
+      }
+    },
+    {
+      "id": "project-company-llm-rag-system",
+      "text": "Project: Company LLM RAG System. Local and cloud-based LLM support system using retrieval augmented generation over proprietary company data. Category: AI/ML. Skills used: LLM; RAG; Agentic AI; Databases; Cloud; Local AI. Status or date: internal. Link: not specified.",
+      "metadata": {
+        "section": "projects",
+        "topic": "Company LLM RAG System",
+        "name": "Company LLM RAG System",
+        "category": "AI/ML",
+        "status": "internal"
+      }
+    },
+    {
+      "id": "project-densenet-121-powered-rice-leaf-disease-identifier",
+      "text": "Project: DenseNet-121 Powered Rice Leaf Disease Identifier. Machine learning project using DenseNet-121 for rice leaf disease identification. Category: AI/ML. Skills used: Python; DenseNet-121; TensorFlow; Kaggle; Jupyter Notebook; Image Classification. Status or date: May 2025. Link: not specified.",
+      "metadata": {
+        "section": "projects",
+        "topic": "DenseNet-121 Powered Rice Leaf Disease Identifier",
+        "name": "DenseNet-121 Powered Rice Leaf Disease Identifier",
+        "category": "AI/ML",
+        "date": "May 2025"
+      }
+    },
+    {
+      "id": "project-prmsu-college-of-engineering-website",
+      "text": "Project: PRMSU College of Engineering Website. College website project for PRMSU College of Engineering. Category: Web Development. Skills used: HTML; CSS; JavaScript; Web Development. Status or date: November 2024. Link: not specified.",
+      "metadata": {
+        "section": "projects",
+        "topic": "PRMSU College of Engineering Website",
+        "name": "PRMSU College of Engineering Website",
+        "category": "Web Development",
+        "date": "November 2024"
+      }
+    },
+    {
+      "id": "project-custom-simple-as-possible-computer-1",
+      "text": "Project: Custom Simple as Possible Computer-1. Custom SAP-1 computer project demonstrating computer architecture and digital systems fundamentals. Category: Computer Engineering. Skills used: Computer Architecture; Digital Logic; Hardware Design. Status or date: November 2024. Link: not specified.",
+      "metadata": {
+        "section": "projects",
+        "topic": "Custom Simple as Possible Computer-1",
+        "name": "Custom Simple as Possible Computer-1",
+        "category": "Computer Engineering",
+        "date": "November 2024"
+      }
+    },
+    {
+      "id": "project-dancraft--a-minecraft-clone",
+      "text": "Project: DanCraft: A Minecraft Clone. Minecraft-inspired clone project focused on game mechanics and software development practice. Category: Game Development. Skills used: Game Development; Programming. Status or date: May 2024. Link: not specified.",
+      "metadata": {
+        "section": "projects",
+        "topic": "DanCraft: A Minecraft Clone",
+        "name": "DanCraft: A Minecraft Clone",
+        "category": "Game Development",
+        "date": "May 2024"
+      }
+    },
+    {
+      "id": "project-prmsu-faculty-monitoring-system",
+      "text": "Project: PRMSU Faculty Monitoring System. Faculty monitoring system built for tracking and administrative support. Category: Production. Skills used: Database Management; Software Development; Administrative Systems. Status or date: December 2023. Link: not specified.",
+      "metadata": {
+        "section": "projects",
+        "topic": "PRMSU Faculty Monitoring System",
+        "name": "PRMSU Faculty Monitoring System",
+        "category": "Production",
+        "date": "December 2023"
+      }
+    },
+    {
+      "id": "project-valorant-gun-skins-sale-database",
+      "text": "Project: Valorant Gun Skins Sale Database. Database project for tracking Valorant gun skin sales. Category: Database. Skills used: SQL; Database Design; Data Management. Status or date: October 2023. Link: not specified.",
+      "metadata": {
+        "section": "projects",
+        "topic": "Valorant Gun Skins Sale Database",
+        "name": "Valorant Gun Skins Sale Database",
+        "category": "Database",
+        "date": "October 2023"
+      }
+    },
+    {
+      "id": "project-vs-code-portfolio",
+      "text": "Project: VS Code Portfolio. Personal portfolio built with a full-page Visual Studio Code-inspired Windows UI, Next.js App Router, React, TypeScript, global CSS theme tokens, and Vercel-ready deployment structure. Category: Portfolio. Skills used: Next.js; React; TypeScript; CSS; Vercel. Status or date: not specified. Link: https://www.ZachCodes.vercel.app.",
+      "metadata": {
+        "section": "projects",
+        "topic": "VS Code Portfolio",
+        "name": "VS Code Portfolio",
+        "category": "Portfolio",
+        "link": "https://www.ZachCodes.vercel.app"
+      }
+    },
+    {
+      "id": "leadership-1",
+      "text": "Daniel served as Vice President Internal for Institute of Computer Engineers of the Philippines Student Edition, PRMSU Chapter during 2023 - 2024. Served in student leadership for ICpEP.se PRMSU chapter.",
+      "metadata": {
+        "section": "leadership_and_community",
+        "topic": "Vice President Internal",
+        "organization": "Institute of Computer Engineers of the Philippines Student Edition, PRMSU Chapter",
+        "duration": "2023 - 2024"
+      }
+    },
+    {
+      "id": "leadership-2",
+      "text": "Daniel served as Onboarding Project Lead for ICpEP.se PRMSU during 2023. Led onboarding project work as part of student organization activities.",
+      "metadata": {
+        "section": "leadership_and_community",
+        "topic": "Onboarding Project Lead",
+        "organization": "ICpEP.se PRMSU",
+        "duration": "2023"
+      }
+    },
+    {
+      "id": "award-1",
+      "text": "Award: Best in Thesis Award. Related project or event: PRMSU, Iba, Zambales. Date: June 23, 2025.",
+      "metadata": {
+        "section": "awards",
+        "topic": "Best in Thesis Award",
+        "date": "June 23, 2025"
+      }
+    },
+    {
+      "id": "award-2",
+      "text": "Award: 2nd Runner-Up, 8th CpE Challenge: Robothon Competition. Related project or event: Regional Level, Institute of Computer Engineers of the Philippines Student Edition. Date: March 8, 2025.",
+      "metadata": {
+        "section": "awards",
+        "topic": "2nd Runner-Up, 8th CpE Challenge: Robothon Competition",
+        "date": "March 8, 2025"
+      }
+    },
+    {
+      "id": "award-3",
+      "text": "Award: 3rd Runner-Up, 7th CpE Challenge: Robothon Competition. Related project or event: Regional Level, Institute of Computer Engineers of the Philippines Student Edition Region 3. Date: January 17, 2024.",
+      "metadata": {
+        "section": "awards",
+        "topic": "3rd Runner-Up, 7th CpE Challenge: Robothon Competition",
+        "date": "January 17, 2024"
+      }
+    },
+    {
+      "id": "certification-1",
+      "text": "Certification: AWS Cloud Practitioner (CLF-C02) Track Completion. Issuer: DataCamp. Date: June 15, 2025.",
+      "metadata": {
+        "section": "certifications",
+        "topic": "AWS Cloud Practitioner (CLF-C02) Track Completion",
+        "issuer": "DataCamp",
+        "date": "June 15, 2025"
+      }
+    },
+    {
+      "id": "certification-2",
+      "text": "Certification: Certified Safety Officer 2. Issuer: PRMSU / Basic Occupational Safety and Health Training. Date: March 19, 20, 21, and 28, 2025.",
+      "metadata": {
+        "section": "certifications",
+        "topic": "Certified Safety Officer 2",
+        "issuer": "PRMSU / Basic Occupational Safety and Health Training",
+        "date": "March 19, 20, 21, and 28, 2025"
+      }
+    },
+    {
+      "id": "certification-3",
+      "text": "Certification: Intermediate SQL Course. Issuer: DataCamp. Date: June 12, 2025.",
+      "metadata": {
+        "section": "certifications",
+        "topic": "Intermediate SQL Course",
+        "issuer": "DataCamp",
+        "date": "June 12, 2025"
+      }
+    },
+    {
+      "id": "certification-4",
+      "text": "Certification: Introduction to Power BI Course. Issuer: DataCamp. Date: June 17, 2025.",
+      "metadata": {
+        "section": "certifications",
+        "topic": "Introduction to Power BI Course",
+        "issuer": "DataCamp",
+        "date": "June 17, 2025"
+      }
+    },
+    {
+      "id": "certification-5",
+      "text": "Certification: Intermediate R Course. Issuer: DataCamp. Date: June 18, 2025.",
+      "metadata": {
+        "section": "certifications",
+        "topic": "Intermediate R Course",
+        "issuer": "DataCamp",
+        "date": "June 18, 2025"
+      }
+    },
+    {
+      "id": "certification-6",
+      "text": "Certification: Intermediate in Python Course. Issuer: DataCamp. Date: February 15, 2025.",
+      "metadata": {
+        "section": "certifications",
+        "topic": "Intermediate in Python Course",
+        "issuer": "DataCamp",
+        "date": "February 15, 2025"
+      }
+    },
+    {
+      "id": "seminar-artificial-intelligence---machine-learning",
+      "text": "Daniel attended seminars in Artificial Intelligence & Machine Learning: AI-Powered Engineer: Mastering Machine Learning for Real-World Impact, April 11, 2025, CCIT, PRMSU Main; Machine Learning in Embedded Systems: Object Detection Using ESP32-CAM, April 11, 2025, CCIT, PRMSU Main; AI & Big Data: Foundation and Future, April 3, 2025, Multimedia Section, E-Library, PRMSU Main; Neural Networks and Deep Learning, April 15, 2025, SELB-AVR and CCIT Lab, PRMSU Main.",
+      "metadata": {
+        "section": "seminars",
+        "topic": "Artificial Intelligence & Machine Learning",
+        "category": "Artificial Intelligence & Machine Learning"
+      }
+    },
+    {
+      "id": "seminar-web---software-development",
+      "text": "Daniel attended seminars in Web & Software Development: Hybrid Web Application Development, April 29, 2025, SELB-AVR, PRMSU Main; From Code to Community: Impact in the Digital Era, March 8, 2025, ICpEP.se R3GA.",
+      "metadata": {
+        "section": "seminars",
+        "topic": "Web & Software Development",
+        "category": "Web & Software Development"
+      }
+    },
+    {
+      "id": "seminar-cybersecurity",
+      "text": "Daniel attended seminars in Cybersecurity: 3rd Regional Cybersecurity Conference: Navigating AI's Double-Edged Sword, February 7, 2025, Holy Angel University.",
+      "metadata": {
+        "section": "seminars",
+        "topic": "Cybersecurity",
+        "category": "Cybersecurity"
+      }
+    },
+    {
+      "id": "seminar-labor---professional-development",
+      "text": "Daniel attended seminars in Labor & Professional Development: Labor and Employment Seminar, May 9, 2025, CTE AVR, PRMSU Main; Electronics Product Development Center, April 11, 2024, Taguig; Microchip Technology Operations Philippines, April 11, 2024, Calamba; HYTEC Power Incorporated, April 12, 2024, Quezon City.",
+      "metadata": {
+        "section": "seminars",
+        "topic": "Labor & Professional Development",
+        "category": "Labor & Professional Development"
+      }
+    },
+    {
+      "id": "seminar-professional-conferences",
+      "text": "Daniel attended seminars in Professional Conferences: General Assembly: Level Up - Pioneering Computer Engineering, March 8, 2025, ICpEP.se R3GA.",
+      "metadata": {
+        "section": "seminars",
+        "topic": "Professional Conferences",
+        "category": "Professional Conferences"
+      }
+    },
+    {
+      "id": "metrics-career-impact",
+      "text": "Career and project metrics: motherboard_inspection_time_reduction: 150%; motherboard_net_tracing_time_reduction: 60%; zameco_productivity_increase: 30%; ojt_hours: 240; backlogged_data_sorted: 4 years; gwa: 1.66.",
+      "metadata": {
+        "section": "metrics",
+        "topic": "career_impact"
+      }
+    },
+    {
+      "id": "languages-spoken",
+      "text": "Daniel speaks: English; Filipino.",
+      "metadata": {
+        "section": "languages",
+        "topic": "spoken_languages"
+      }
+    },
+    {
+      "id": "reference-1",
+      "text": "Reference: Engr. Melojean C. Marave, LPT, MSIT, BS in Computer Engineering Chairperson at President Ramon Magsaysay State University. Email: mmarave@prmsu.edu.ph. Phone: +63 966 440 9325.",
+      "metadata": {
+        "section": "references",
+        "topic": "Engr. Melojean C. Marave, LPT, MSIT",
+        "organization": "President Ramon Magsaysay State University"
+      }
+    },
+    {
+      "id": "reference-2",
+      "text": "Reference: Engr. Ricky S. Barrera, BS in Computer Engineering Instructor III at President Ramon Magsaysay State University. Email: rickysbarrera@prmsu.edu.ph. Phone: +63 946 587 7333.",
+      "metadata": {
+        "section": "references",
+        "topic": "Engr. Ricky S. Barrera",
+        "organization": "President Ramon Magsaysay State University"
+      }
+    },
+    {
+      "id": "contact-links",
+      "text": "Daniel contact and profile links: website: https://www.ZachCodes.vercel.app; linkedin: https://ph.linkedin.com/in/daniel-zachary-mercurio; github: https://github.com/private-dev-ph; email: danielzacharymercurio@gmail.com; phone: +63 969 567 4225; location: Subic, Zambales, Philippines.",
+      "metadata": {
+        "section": "links",
+        "topic": "contact_and_profiles"
+      }
+    }
+  ]
+}

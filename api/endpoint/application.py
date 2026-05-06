@@ -1,10 +1,10 @@
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.core.config import get_settings
 from api.core.models import ChatRequest, ChatResponse, IngestRequest, IngestResponse
 from api.query.rag import answer_question, ingest_documents
-from api.tools.security import AllowedOriginMiddleware, require_admin_token
+from api.tools.security import AllowedOriginMiddleware, enforce_chat_rate_limit, require_admin_token
 
 
 def create_app() -> FastAPI:
@@ -34,8 +34,9 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     @app.post("/api/chat", response_model=ChatResponse)
-    def chat(request: ChatRequest) -> ChatResponse:
-        return answer_question(request, settings)
+    def chat(request: Request, chat_request: ChatRequest) -> ChatResponse:
+        enforce_chat_rate_limit(request, settings)
+        return answer_question(chat_request, settings)
 
     @app.post(
         "/api/ingest",

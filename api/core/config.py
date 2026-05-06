@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 class Settings(BaseModel):
     app_name: str = "Digi-Dan"
     cors_origins: list[str] = Field(default_factory=list)
-    allowed_origin_domains: list[str] = Field(default_factory=lambda: ["yashashm.dev"])
+    allowed_origin_domains: list[str] = Field(default_factory=lambda: ["zachcodes.vercel.app"])
     api_bypass_secret: str | None = None
 
     gemini_api_key: str | None = None
@@ -28,6 +28,8 @@ class Settings(BaseModel):
     default_provider: str = "gemini"
     retrieval_top_k: int = 4
     max_context_chars: int = 6000
+    chat_rate_limit: int = 10
+    chat_rate_limit_window_seconds: int = 3600
 
 
 def _csv(value: str | None) -> list[str]:
@@ -42,7 +44,7 @@ def get_settings() -> Settings:
     return Settings(
         app_name=os.getenv("APP_NAME", "Digi-Dan"),
         cors_origins=_csv(os.getenv("CORS_ORIGINS")),
-        allowed_origin_domains=_csv(os.getenv("ALLOWED_ORIGIN_DOMAINS")) or ["yashashm.dev"],
+        allowed_origin_domains=_csv(os.getenv("ALLOWED_ORIGIN_DOMAINS")) or ["zachcodes.vercel.app"],
         api_bypass_secret=os.getenv("API_BYPASS_SECRET") or None,
         gemini_api_key=os.getenv("GEMINI_API_KEY") or None,
         gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
@@ -58,4 +60,6 @@ def get_settings() -> Settings:
         default_provider=os.getenv("DEFAULT_PROVIDER", "gemini"),
         retrieval_top_k=int(os.getenv("RETRIEVAL_TOP_K", "4")),
         max_context_chars=int(os.getenv("MAX_CONTEXT_CHARS", "6000")),
+        chat_rate_limit=int(os.getenv("CHAT_RATE_LIMIT", "10")),
+        chat_rate_limit_window_seconds=int(os.getenv("CHAT_RATE_LIMIT_WINDOW_SECONDS", "3600")),
     )

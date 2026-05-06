@@ -2,14 +2,9 @@ from fastapi import HTTPException
 
 from api.core.config import Settings
 from api.core.models import ChatRequest, ChatResponse, IngestRequest, IngestResponse, Provider, Source
+from api.core.prompts import DEFAULT_SYSTEM_PROMPT
 from api.query.providers import generate_answer
 from api.tools.vector_store import query_sources, upsert_documents
-
-
-DEFAULT_SYSTEM = (
-    "You are Digi-Dan, a concise support bot. Answer from retrieved context when it is useful. "
-    "If context is missing or weak, say what is missing and answer with general knowledge only when safe."
-)
 
 
 def answer_question(request: ChatRequest, settings: Settings) -> ChatResponse:
@@ -20,7 +15,7 @@ def answer_question(request: ChatRequest, settings: Settings) -> ChatResponse:
     sources = query_sources(request.message, top_k, namespace, settings)
     context = _format_context(sources, settings.max_context_chars)
     prompt = _format_prompt(request.message, context)
-    answer = generate_answer(provider, prompt, request.system or DEFAULT_SYSTEM, settings)
+    answer = generate_answer(provider, prompt, request.system or DEFAULT_SYSTEM_PROMPT, settings)
 
     return ChatResponse(answer=answer, provider=provider, sources=sources)
 

@@ -8,7 +8,7 @@ FastAPI bot for Vercel serverless with Gemini, DeepSeek, Gemini embeddings, and 
 - `POST /api/chat`
 - `POST /api/ingest` with `Authorization: Bearer $BOT_ADMIN_TOKEN`
 
-API routes accept browser requests only from `yashashm.dev` and subdomains by default. For local API testing, send `X-API-Secret: $API_BYPASS_SECRET`.
+API routes accept browser requests only from `zachcodes.vercel.app` and subdomains by default. For local API testing, send `X-API-Secret: $API_BYPASS_SECRET`.
 
 ## Local setup
 

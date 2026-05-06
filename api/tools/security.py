@@ -1,9 +1,13 @@
+from time import monotonic
 from urllib.parse import urlparse
 
 from fastapi import Header, HTTPException, Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
 from api.core.config import Settings, get_settings
+
+
+_chat_rate_limit_buckets: dict[str, tuple[int, float]] = {}
 
 
 class AllowedOriginMiddleware(BaseHTTPMiddleware):
@@ -47,3 +51,45 @@ def require_admin_token(authorization: str | None = Header(default=None)) -> Non
 
     if authorization != f"Bearer {expected}":
         raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+def enforce_chat_rate_limit(request: Request, settings: Settings) -> None:
+    if settings.chat_rate_limit <= 0:
+        return
+
+    client_id = _client_identifier(request)
+    now = monotonic()
+    count, reset_at = _chat_rate_limit_buckets.get(
+        client_id,
+        (0, now + settings.chat_rate_limit_window_seconds),
+    )
+
+    if now >= reset_at:
+        count = 0
+        reset_at = now + settings.chat_rate_limit_window_seconds
+
+    if count >= settings.chat_rate_limit:
+        raise HTTPException(
+            status_code=429,
+            detail=(
+                "Digi-Dan is cooling the circuits for a moment. "
+                f"You've reached the {settings.chat_rate_limit}-question limit, so please try again shortly."
+            ),
+        )
+
+    _chat_rate_limit_buckets[client_id] = (count + 1, reset_at)
+
+
+def _client_identifier(request: Request) -> str:
+    forwarded_for = request.headers.get("x-forwarded-for")
+    if forwarded_for:
+        return forwarded_for.split(",", maxsplit=1)[0].strip()
+
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        return real_ip.strip()
+
+    if request.client:
+        return request.client.host
+
+    return "unknown-client"
