@@ -1,0 +1,53 @@
+name: Upload RAG data
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - daniel-zachary-rag-data.json
+      - api/tools/upload_vectorstore.py
+      - api/tools/vector_store.py
+      - api/query/providers.py
+      - api/core/config.py
+      - api/core/models.py
+      - requirements.txt
+      - .github/workflows/upload-rag-data.yml
+  workflow_dispatch:
+
+concurrency:
+  group: upload-rag-data
+  cancel-in-progress: true
+
+jobs:
+  upload:
+    name: Upload to Upstash Vector
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GEMINI_EMBEDDING_MODEL: ${{ vars.GEMINI_EMBEDDING_MODEL || 'gemini-embedding-001' }}
+      EMBEDDING_DIMENSIONS: ${{ vars.EMBEDDING_DIMENSIONS || '768' }}
+      UPSTASH_VECTOR_REST_URL: ${{ secrets.UPSTASH_VECTOR_REST_URL }}
+      UPSTASH_VECTOR_REST_TOKEN: ${{ secrets.UPSTASH_VECTOR_REST_TOKEN }}
+      UPSTASH_NAMESPACE: ${{ vars.UPSTASH_NAMESPACE || 'digi-dan-rag' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Validate RAG data JSON
+        run: python -m json.tool daniel-zachary-rag-data.json > /dev/null
+
+      - name: Upload RAG data
+        run: python -m api.tools.upload_vectorstore daniel-zachary-rag-data.json --namespace "$UPSTASH_NAMESPACE"
