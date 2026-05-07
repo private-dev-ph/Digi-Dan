@@ -57,5 +57,5 @@ def _format_prompt(message: str, context: str) -> str:
         f"{context}\n\n"
         "User question:\n"
         f"{message}\n\n"
-        "Answer with citations like [source-id] when retrieved context supports the claim."
+        "Answer naturally without mentioning source IDs or metadata."
     )
