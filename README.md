@@ -1,32 +1,77 @@
 # Digi-Dan
 
-Digi-Dan is a FastAPI retrieval-augmented generation backend for a portfolio assistant. It stores profile, education, project, skill, and experience facts in Upstash Vector, retrieves the most relevant chunks for a question, and sends the grounded context to either Gemini or DeepSeek for the final answer.
+<p align="left">A retrieval-augmented generation backend for a grounded portfolio assistant.</p>
 
-The project is designed to run locally with Uvicorn and deploy as a Python/FastAPI serverless backend on Vercel. It can also be reused as a template for any personal portfolio, resume bot, documentation assistant, or small knowledge-base chatbot.
+<p align="left">
+  <img src="https://img.shields.io/badge/Python-Python-3776AB?logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/RAG-Upstash%20Vector-6B46C1" alt="RAG with Upstash Vector">
+  <img src="https://img.shields.io/badge/Deploy-Vercel--ready-000000?logo=vercel&logoColor=white" alt="Vercel-ready">
+  <img src="https://img.shields.io/badge/License-MIT-22C55E" alt="MIT License">
+</p>
 
-## Features
+<p align="center">
+  <img src="docs/assets/digidan-logo.svg" alt="Digi-Dan white mark in a black circle" width="180">
+</p>
 
-- FastAPI backend with Vercel-compatible ASGI entrypoint.
-- RAG flow using Gemini embeddings and Upstash Vector.
-- Generation provider switch between Gemini and DeepSeek.
-- JSON, JSONL, and TXT ingestion helper for vector uploads.
-- Browser origin allowlist for portfolio frontend access.
-- `X-API-Secret` bypass for local testing and server-to-server calls.
-- Bearer-token protected ingest endpoint.
-- Per-client in-memory chat rate limiting.
-- GitHub Actions workflow that uploads updated RAG data automatically.
-- Source citations returned with each answer.
+## Navigate
+
+[What it does](#what-it-does) · [UI example](#ui-example) · [Architecture](#architecture) · [Quick start](#local-setup) · [API](#api-reference) · [Operations](#operations) · [Security](#security-and-troubleshooting) · [Documentation](#documentation)
+
+## What it does
+
+Digi-Dan stores curated portfolio facts in Upstash Vector, retrieves the most relevant chunks for each question, and uses Gemini or DeepSeek to generate a grounded answer with source records. It runs locally with Uvicorn and deploys as a FastAPI backend on Vercel.
+
+Portfolio information is useful only when visitors can find it. Digi-Dan turns approved profile, education, project, skill, and experience data into answerable context: retrieve facts first, generate a response second, and return the sources used for transparent review and debugging.
+
+It can also be adapted into a resume bot, documentation assistant, or small knowledge-base chatbot.
+
+| Area | What the project demonstrates |
+| --- | --- |
+| Grounding | Gemini embeddings retrieve relevant Upstash Vector chunks before generation. |
+| Responses | Gemini or DeepSeek generation returns an answer, provider, and source records. |
+| Operations | JSON, JSONL, and TXT ingestion through a CLI or Bearer-protected API. |
+| Safety | Origin allowlists, a trusted server bypass, protected ingestion, and chat rate limiting. |
+| Deployment | Uvicorn development, Vercel-compatible ASGI entrypoint, and automated RAG-data uploads. |
+
+[TODO: public demo — add a verified public URL and short access instructions when one is available.]
+
+## UI example
+
+The chat interface below is an example of the portfolio-facing experience. A visitor asks a question while Digi-Dan retrieves relevant context and returns a response with the source records used to ground it.
+
+![Digi-Dan chat interface showing a visitor question and a grounded assistant response](docs/assets/digidan-chat.png)
 
 ## Architecture
 
-```txt
-Portfolio frontend
-  -> POST /api/chat
-  -> FastAPI app
-  -> Gemini embedding model embeds the question
-  -> Upstash Vector returns relevant source chunks
-  -> Gemini or DeepSeek generates an answer from the retrieved context
-  -> API returns answer, provider, and source records
+### RAG request flow
+
+```mermaid
+flowchart LR
+    V[Portfolio visitor] -->|POST /api/chat| A[FastAPI app]
+    A --> E[Gemini embedding model]
+    E --> U[Upstash Vector]
+    U -->|Relevant source chunks| R[Retrieval and prompt assembly]
+    R --> G[Gemini or DeepSeek]
+    G -->|Answer, provider, sources| V
+```
+
+### Deployment and trust boundaries
+
+```mermaid
+flowchart TB
+    B[Browser] -->|Portfolio route| P[Portfolio backend]
+    P -->|X-API-Secret| A[FastAPI API]
+    B -. Configured browser origin only .-> A
+    T[Terminal or trusted server] -->|X-API-Secret| A
+    A --> V[Upstash Vector]
+    A --> M[Gemini or DeepSeek]
+    I[Ingestion client] -->|Bearer BOT_ADMIN_TOKEN| N[POST /api/ingest]
+    N --> A
+    subgraph Trusted server boundary
+        P
+        T
+    end
 ```
 
 Important files:
@@ -45,40 +90,38 @@ daniel-zachary-rag-data.json            Template knowledge base
 .github/workflows/upload-rag-data.yml   Automatic vector upload workflow
 ```
 
-## Endpoints
+## Local setup
+
+Copy `.env.example` to `.env` (`Copy-Item .env.example .env` on PowerShell). Keep it as plain `KEY=value` lines only.
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+uvicorn app:app --reload --port 8001
+```
+
+On macOS/Linux, activate with `source .venv/bin/activate`. Test health with:
+
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8001/api/health" -Headers @{ "X-API-Secret" = "YOUR_API_BYPASS_SECRET" }
+```
+
+## API reference
 
 ### `GET /`
 
-Basic root check.
-
-Response:
+Basic root check:
 
 ```json
-{
-  "name": "Digi-Dan",
-  "status": "ok"
-}
+{ "name": "Digi-Dan", "status": "ok" }
 ```
 
 ### `GET /api/health`
 
-Health check for local, Vercel, or uptime monitoring.
-
-Response:
-
-```json
-{
-  "status": "ok"
-}
-```
-
-Protected by the same origin/bypass middleware as other `/api/*` routes.
+Health check for local, Vercel, or uptime monitoring. Protected by the same origin/bypass middleware as other `/api/*` routes.
 
 ### `POST /api/chat`
-
-Ask the model a question.
-
-Request body:
 
 ```json
 {
@@ -89,408 +132,86 @@ Request body:
 }
 ```
 
-Fields:
-
-```txt
-message     Required question.
-provider    Optional. "gemini" or "deepseek". Defaults to DEFAULT_PROVIDER.
-system      Optional per-request system prompt override.
-top_k       Optional number of retrieved chunks. Defaults to RETRIEVAL_TOP_K.
-namespace   Optional Upstash namespace. Defaults to UPSTASH_NAMESPACE.
-```
-
-Response:
+`message` is required. `provider` is `gemini` or `deepseek` and defaults to `DEFAULT_PROVIDER`; `system`, `top_k`, and `namespace` are optional.
 
 ```json
 {
   "answer": "Daniel studied at President Ramon Magsaysay State University...",
   "provider": "gemini",
-  "sources": [
-    {
-      "id": "education-college",
-      "score": 0.8238814,
-      "text": "Daniel's college education...",
-      "metadata": {
-        "section": "education",
-        "topic": "college"
-      }
-    }
-  ]
+  "sources": [{ "id": "education-college", "score": 0.8238814, "text": "Daniel's college education...", "metadata": { "section": "education", "topic": "college" } }]
 }
 ```
 
 ### `POST /api/ingest`
 
-Upload documents into Upstash Vector through the API.
-
-Headers:
-
-```txt
-Authorization: Bearer BOT_ADMIN_TOKEN
-```
-
-Request body:
+Upload documents into Upstash Vector through the API. It requires `Authorization: Bearer BOT_ADMIN_TOKEN`.
 
 ```json
-{
-  "namespace": "digi-dan-rag",
-  "documents": [
-    {
-      "id": "education-college",
-      "text": "Daniel studied Computer Engineering...",
-      "metadata": {
-        "section": "education"
-      }
-    }
-  ]
-}
+{ "namespace": "digi-dan-rag", "documents": [{ "id": "education-college", "text": "Daniel studied Computer Engineering...", "metadata": { "section": "education" } }] }
 ```
 
-Response:
+## Configuration
 
-```json
-{
-  "upserted": 1,
-  "namespace": "digi-dan-rag"
-}
-```
+| Variable | Purpose |
+| --- | --- |
+| `APP_NAME` | API display name. |
+| `CORS_ORIGINS`, `ALLOWED_ORIGIN_DOMAINS` | Browser CORS and custom-origin allowlists. |
+| `API_BYPASS_SECRET` | Trusted terminal/server `X-API-Secret`; never expose it in browser code. |
+| `GEMINI_API_KEY`, `GEMINI_MODEL`, `GEMINI_EMBEDDING_MODEL` | Gemini embeddings and generation settings. |
+| `EMBEDDING_DIMENSIONS` | Must match the Upstash Vector index dimension; default `768`. |
+| `DEEPSEEK_API_KEY`, `DEEPSEEK_BASE_URL`, `DEEPSEEK_MODEL` | DeepSeek generation settings. |
+| `UPSTASH_VECTOR_REST_URL`, `UPSTASH_VECTOR_REST_TOKEN`, `UPSTASH_NAMESPACE` | Vector connection and namespace. |
+| `BOT_ADMIN_TOKEN` | Ingest-route Bearer token. |
+| `DEFAULT_PROVIDER`, `RETRIEVAL_TOP_K`, `MAX_CONTEXT_CHARS` | Generation and retrieval defaults. |
+| `CHAT_RATE_LIMIT`, `CHAT_RATE_LIMIT_WINDOW_SECONDS` | Per-client chat limiting; use `0` to disable the limit. |
 
-## Environment Variables
+## Operations
 
-Copy `.env.example` to `.env` for local development.
+### RAG data and upload
 
-```bash
-cp .env.example .env
-```
-
-On Windows PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Variables:
-
-```txt
-APP_NAME
-Display name used by the FastAPI app and root endpoint.
-
-CORS_ORIGINS
-Comma-separated full browser origins allowed by CORS.
-Example: https://your-portfolio.vercel.app,http://localhost:3000
-
-ALLOWED_ORIGIN_DOMAINS
-Comma-separated hostnames allowed by the custom origin middleware.
-Do not include protocol.
-Example: your-portfolio.vercel.app,yourdomain.com,localhost
-
-API_BYPASS_SECRET
-Secret sent as X-API-Secret for terminal tests or server-to-server calls.
-Never expose this in browser code.
-
-GEMINI_API_KEY
-Required for embeddings and Gemini generation.
-
-GEMINI_MODEL
-Gemini generation model. Default: gemini-2.5-flash.
-
-GEMINI_EMBEDDING_MODEL
-Gemini embedding model used for retrieval and ingestion.
-Default: gemini-embedding-001.
-
-EMBEDDING_DIMENSIONS
-Embedding vector size. Must match your Upstash Vector index dimension.
-Default: 768.
-
-DEEPSEEK_API_KEY
-Required only when using provider "deepseek".
-
-DEEPSEEK_BASE_URL
-DeepSeek API base URL. Default: https://api.deepseek.com.
-
-DEEPSEEK_MODEL
-DeepSeek chat model. Default: deepseek-chat.
-
-UPSTASH_VECTOR_REST_URL
-Upstash Vector REST URL.
-
-UPSTASH_VECTOR_REST_TOKEN
-Upstash Vector REST token.
-
-UPSTASH_NAMESPACE
-Default namespace for retrieval and ingestion.
-Example: digi-dan-rag.
-
-BOT_ADMIN_TOKEN
-Bearer token required by POST /api/ingest.
-
-DEFAULT_PROVIDER
-Default generation provider when a chat request omits provider.
-Allowed values: gemini, deepseek.
-
-RETRIEVAL_TOP_K
-Default number of source chunks to retrieve.
-
-MAX_CONTEXT_CHARS
-Maximum retrieved context characters passed into the generation prompt.
-
-CHAT_RATE_LIMIT
-Maximum chat requests per client per window. Set 0 to disable.
-
-CHAT_RATE_LIMIT_WINDOW_SECONDS
-Rate limit window size in seconds.
-```
-
-Keep `.env` as plain `KEY=value` lines only. Do not paste terminal commands into it.
-
-## Local Setup
-
-Create and activate a virtual environment:
-
-```bash
-python -m venv .venv
-```
-
-PowerShell:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-macOS/Linux:
-
-```bash
-source .venv/bin/activate
-```
-
-Install dependencies:
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-Run the API:
-
-```bash
-uvicorn app:app --reload --port 8001
-```
-
-Test health from PowerShell:
-
-```powershell
-Invoke-RestMethod `
-  -Uri "http://127.0.0.1:8001/api/health" `
-  -Headers @{ "X-API-Secret" = "YOUR_API_BYPASS_SECRET" }
-```
-
-Ask a question:
-
-```powershell
-Invoke-RestMethod `
-  -Uri "http://127.0.0.1:8001/api/chat" `
-  -Method Post `
-  -ContentType "application/json" `
-  -Headers @{ "X-API-Secret" = "YOUR_API_BYPASS_SECRET" } `
-  -Body '{"message":"Where did Daniel get his college education?","provider":"gemini","top_k":4,"namespace":"digi-dan-rag"}'
-```
-
-## RAG Data Format
-
-The included `daniel-zachary-rag-data.json` uses this structure:
-
-```json
-{
-  "documents": [
-    {
-      "id": "education-college",
-      "text": "Daniel's college education...",
-      "metadata": {
-        "section": "education",
-        "topic": "college"
-      }
-    }
-  ]
-}
-```
-
-Guidelines:
-
-- Keep each document focused on one topic.
-- Put likely user wording near the beginning of `text`.
-- Use stable, readable IDs such as `education-college` or `project-rice-leaf-detection`.
-- Use metadata for filtering, debugging, and source organization.
-- Add summary chunks for broad questions such as education, projects, or experience.
-
-Upload the RAG file manually:
+The included data file uses a `documents` array of objects with stable `id`, focused `text`, and optional `metadata`. Keep likely user wording near the start of each chunk, and add summary chunks for broad questions.
 
 ```bash
 python -m api.tools.upload_vectorstore daniel-zachary-rag-data.json --namespace digi-dan-rag
 ```
 
-Supported upload file types:
+The uploader supports `.json` (`{"documents": [...]}` or a raw document array), `.jsonl` (one document object per line), and `.txt` (one document).
 
-```txt
-.json   Either {"documents": [...]} or a raw array of documents
-.jsonl  One document object per line
-.txt    Uploaded as one document
-```
+### GitHub Actions RAG upload
 
-## GitHub Actions RAG Upload
+`.github/workflows/upload-rag-data.yml` runs when RAG data or ingestion code changes on `main`. Configure `GEMINI_API_KEY`, `UPSTASH_VECTOR_REST_URL`, and `UPSTASH_VECTOR_REST_TOKEN` as repository secrets. Optional variables are `UPSTASH_NAMESPACE`, `GEMINI_EMBEDDING_MODEL`, and `EMBEDDING_DIMENSIONS`. The workflow can also run manually.
 
-The workflow in `.github/workflows/upload-rag-data.yml` runs when RAG data or ingestion code changes on `main`. It validates the JSON and uploads it to Upstash Vector.
+### Vercel deployment
 
-Add these GitHub repository secrets:
+The root `app.py` exposes the ASGI app. Use Vercel's **FastAPI** preset, repository root, and default/empty build, install, and output settings. Add the same production configuration values; `DEEPSEEK_API_KEY` is needed only when DeepSeek generation is enabled.
 
-```txt
-GEMINI_API_KEY
-UPSTASH_VECTOR_REST_URL
-UPSTASH_VECTOR_REST_TOKEN
-```
+### Using it from a portfolio
 
-Optional GitHub repository variables:
+Proxy browser requests through the portfolio backend and attach `X-API-Secret` only there. Browser code should call the portfolio route, not send that secret. Direct browser calls are appropriate only if the site domain is configured in both origin settings.
 
-```txt
-UPSTASH_NAMESPACE=digi-dan-rag
-GEMINI_EMBEDDING_MODEL=gemini-embedding-001
-EMBEDDING_DIMENSIONS=768
-```
-
-You can also run the workflow manually from the GitHub Actions tab.
-
-## Vercel Deployment
-
-This repo deploys to Vercel as a FastAPI backend. The root `app.py` exposes the ASGI app:
-
-```python
-from api.endpoint.application import create_app
-
-app = create_app()
-```
-
-Vercel settings:
-
-```txt
-Framework Preset: FastAPI
-Root Directory: repository root
-Build Command: default/empty
-Install Command: default/empty
-Output Directory: default/empty
-```
-
-Add the same production environment variables in Vercel Project Settings. At minimum:
-
-```txt
-GEMINI_API_KEY
-UPSTASH_VECTOR_REST_URL
-UPSTASH_VECTOR_REST_TOKEN
-UPSTASH_NAMESPACE
-API_BYPASS_SECRET
-BOT_ADMIN_TOKEN
-DEFAULT_PROVIDER
-ALLOWED_ORIGIN_DOMAINS
-CORS_ORIGINS
-```
-
-Add `DEEPSEEK_API_KEY` only if you want DeepSeek generation.
-
-## Using It From A Portfolio
-
-Recommended pattern: keep secrets on the portfolio server and proxy requests through your portfolio backend.
-
-Example Next.js route:
-
-```ts
-export async function POST(req: Request) {
-  const body = await req.json();
-
-  const response = await fetch(`${process.env.DIGI_DAN_API_URL}/api/chat`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-API-Secret": process.env.DIGI_DAN_API_SECRET!,
-    },
-    body: JSON.stringify({
-      message: body.message,
-      provider: body.provider ?? "gemini",
-      top_k: body.top_k ?? 4,
-    }),
-  });
-
-  return Response.json(await response.json(), { status: response.status });
-}
-```
-
-Portfolio environment variables:
-
-```txt
-DIGI_DAN_API_URL=https://your-digi-dan-backend.vercel.app
-DIGI_DAN_API_SECRET=your API_BYPASS_SECRET
-```
-
-Browser code calls your portfolio route:
-
-```ts
-const response = await fetch("/api/digi-dan", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ message }),
-});
-
-const data = await response.json();
-```
-
-If your portfolio is fully static, you may call `/api/chat` directly from the browser, but only if your domain is configured in `ALLOWED_ORIGIN_DOMAINS` and `CORS_ORIGINS`. Do not send `X-API-Secret` from browser code.
-
-## Using This As A Template
-
-To adapt this project for your own assistant:
+### Using this as a template
 
 1. Fork or copy the repository.
-2. Rename `APP_NAME`.
-3. Replace `daniel-zachary-rag-data.json` with your own knowledge base.
-4. Update `api/core/prompts.py` with your assistant personality and response rules.
-5. Create an Upstash Vector index with the same dimension as `EMBEDDING_DIMENSIONS`.
-6. Set your local, Vercel, and GitHub Actions environment variables.
-7. Run the uploader once to populate the vector database.
-8. Connect your frontend to `POST /api/chat`.
+2. Rename `APP_NAME`, replace `daniel-zachary-rag-data.json`, and update `api/core/prompts.py`.
+3. Create an Upstash Vector index matching `EMBEDDING_DIMENSIONS`.
+4. Set local, Vercel, and GitHub Actions environment variables.
+5. Upload the knowledge base and connect a trusted frontend/server route to `POST /api/chat`.
 
-Template ideas:
+## Security and troubleshooting
 
-```txt
-Portfolio assistant
-Resume chatbot
-Project documentation bot
-Small company FAQ bot
-Course or seminar knowledge base
-Personal second-brain search assistant
-```
+- Do not commit `.env`, expose `API_BYPASS_SECRET` or `BOT_ADMIN_TOKEN`, or make `/api/ingest` a public browser operation.
+- `Forbidden origin`: use the bypass secret for terminal/server calls, or configure the browser origin.
+- `GEMINI_API_KEY is not configured`: Gemini is needed for embeddings even when DeepSeek generates the answer.
+- Unexpected answers: inspect `sources`, improve chunks, add summaries, increase `top_k`, and re-upload.
+- Vercel unmatched function pattern: use the FastAPI preset and root `app.py`; do not add stale function patterns.
 
-## Security Notes
+## Documentation
 
-- Do not commit `.env`.
-- Do not expose `API_BYPASS_SECRET` or `BOT_ADMIN_TOKEN` in browser JavaScript.
-- Keep `/api/ingest` server-only or admin-only.
-- Use narrow `ALLOWED_ORIGIN_DOMAINS` values in production.
-- Rotate secrets if they are ever pasted into public logs or frontend code.
+- [Documentation home](docs/index.md)
+- [Architecture and trust boundaries](docs/architecture.md)
+- [Knowledge-base example](daniel-zachary-rag-data.json)
+- [Portfolio showcase metadata](portfolio-showcase.json)
 
-## Troubleshooting
+## License
 
-`Forbidden origin`
-
-The request did not come from an allowed browser origin and did not include a matching `X-API-Secret`. For terminal tests, send `X-API-Secret`. For browser tests, configure `ALLOWED_ORIGIN_DOMAINS` and `CORS_ORIGINS`.
-
-`GEMINI_API_KEY is not configured`
-
-The app needs Gemini for embeddings even when generation uses DeepSeek.
-
-Unexpected or missing answers
-
-Check the returned `sources`. If the right source is missing, improve the relevant RAG chunk wording, add a summary chunk, increase `top_k`, and re-upload the RAG data.
-
-Wrong namespace
-
-Set `UPSTASH_NAMESPACE` or pass `"namespace"` in the chat request.
-
-Vercel unmatched function pattern
-
-Use the FastAPI preset with the root `app.py` entrypoint. Do not add a stale `functions` pattern for `app.py` or `api/index.py`.
+See [LICENSE](LICENSE).
