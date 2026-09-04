@@ -2,7 +2,7 @@
   "title": "Digi-Dan",
   "summary": "A FastAPI retrieval-augmented generation backend that grounds a portfolio assistant's answers in curated profile, education, project, skill, and experience data.",
   "logo": { "src": "docs/assets/digidan-logo.svg", "alt": "Digi-Dan logo" },
-  "internalDemoAvailable": false,
+  "internalDemoAvailable": true,
   "images": [
     { "src": "docs/assets/digidan-chat.png", "alt": "Digi-Dan chat panel answering a portfolio question with source citations", "caption": "Digi-Dan as presented in its portfolio chat interface." }
   ],
