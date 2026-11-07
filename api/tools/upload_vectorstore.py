@@ -32,6 +32,8 @@ def _load_documents(path: Path) -> list[Document]:
         ]
     if suffix == ".json":
         data = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(data, dict) and data.get("kind") in {"knowledge-candidate", "resume-extraction"}:
+            raise ValueError("Versioned knowledge artifacts cannot be uploaded through the legacy loader")
         items = data if isinstance(data, list) else data.get("documents", [])
         return [_document_from_obj(item, fallback_id=f"{path.stem}-{index}") for index, item in enumerate(items)]
     raise ValueError("Supported files: .txt, .json, .jsonl")

@@ -25,6 +25,7 @@ class ChatResponse(BaseModel):
     answer: str
     provider: Provider
     sources: list[Source] = Field(default_factory=list)
+    knowledge_version: str | None = None
 
 
 class Document(BaseModel):

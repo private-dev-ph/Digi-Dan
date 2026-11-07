@@ -1,18 +1,7 @@
 name: Upload RAG data
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - daniel-zachary-rag-data.json
-      - api/tools/upload_vectorstore.py
-      - api/tools/vector_store.py
-      - api/query/providers.py
-      - api/core/config.py
-      - api/core/models.py
-      - requirements.txt
-      - .github/workflows/upload-rag-data.yml
+  # Legacy writes are manual during the versioned-knowledge rollout.
   workflow_dispatch:
 
 concurrency:
@@ -22,10 +11,12 @@ concurrency:
 jobs:
   upload:
     name: Upload to Upstash Vector
+    if: ${{ vars.KNOWLEDGE_MODE != 'versioned' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     env:
+      KNOWLEDGE_MODE: ${{ vars.KNOWLEDGE_MODE || 'legacy' }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_EMBEDDING_MODEL: ${{ vars.GEMINI_EMBEDDING_MODEL || 'gemini-embedding-001' }}
       EMBEDDING_DIMENSIONS: ${{ vars.EMBEDDING_DIMENSIONS || '768' }}

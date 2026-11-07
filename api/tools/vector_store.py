@@ -2,6 +2,7 @@ from fastapi import HTTPException
 
 from api.core.config import Settings
 from api.core.models import Document, Source
+from api.knowledge.ports import MANAGED_NAMESPACE_PREFIX
 from api.query.providers import embed_texts
 
 
@@ -49,6 +50,10 @@ def query_sources(
 
 
 def upsert_documents(documents: list[Document], namespace: str, settings: Settings) -> int:
+    if settings.knowledge_mode == "versioned":
+        raise HTTPException(status_code=409, detail="Document writes are disabled in versioned knowledge mode")
+    if namespace.startswith((MANAGED_NAMESPACE_PREFIX, "digi-dan-test-knowledge-", "digi-dan-production-knowledge-")):
+        raise HTTPException(status_code=409, detail="Managed knowledge namespaces cannot be written through legacy ingestion")
     vectors = embed_texts([document.text for document in documents], settings)
     payload = []
 

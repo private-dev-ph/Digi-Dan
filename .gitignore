@@ -184,3 +184,14 @@ cython_debug/
 .agents/
 .codex/
 AGENTS.md
+# Local resume extraction state (may contain personal data)
+.resume-state/
+
+# Local assembled knowledge candidates
+.knowledge-state/
+
+# Isolated Stage 3 registry and vector database
+.knowledge-local-state/
+
+# Isolated cloud-test credentials
+.env.cloud-test

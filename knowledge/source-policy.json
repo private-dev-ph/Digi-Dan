@@ -1,0 +1,873 @@
+{
+  "schema_version": 1,
+  "policy_version": "1",
+  "resume_content_hash": "dad848496043b57123b499fe7144bfd4b6fbc38cef894d891e84a02afc974c18",
+  "legacy_inventory": [
+    {
+      "id": "about-profile-summary",
+      "content_hash": "e32c4e73cb195d0b2561fe96f3af8decaf2f38a8c2442d0ab2b3d6ddac6533c7",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio owns current profile facts; legacy bundled claims and the superseded 150% metric are not imported."
+    },
+    {
+      "id": "about-philosophy-frontend",
+      "content_hash": "88e5a190d2664b6e29014622386a09956473a977b4eb7478c008729ec140d235",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio owns current profile and does not retain these legacy philosophy statements."
+    },
+    {
+      "id": "about-philosophy-backend",
+      "content_hash": "566bee0ea5ae784358c6615f23282f7cc03ef30096094fb1274054a60cb00ae5",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio owns current profile and does not retain these legacy philosophy statements."
+    },
+    {
+      "id": "about-philosophy-ai-vision",
+      "content_hash": "56789204cf20360edf810ac91d9d96ba80e1c98d45255bcbfdd4bd552eef36bd",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio owns current profile and does not retain these legacy philosophy statements."
+    },
+    {
+      "id": "about-philosophy-automation",
+      "content_hash": "7511e32eafb614c04f55a28576fb07ecfaf7ef66092965db3da40fc5d58cf6fc",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio owns current profile and does not retain these legacy philosophy statements."
+    },
+    {
+      "id": "education-college",
+      "content_hash": "29808ba76be37db3b05f7f3baa19a5f9819512cec602b9139c8ab5379933f024",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "education-summary",
+      "content_hash": "6c3b6348af29c2e023901e70afc6f03b7b6366c362d8f207e55eca3031ea1401",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "education-previous-1",
+      "content_hash": "d66ab518953e7188ed489d531bc38569f71e72cee104e682b912ec028841c790",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "skills-domains",
+      "content_hash": "28ef4a9c38a445c2d34166968867a448e1d0b4eeca4f0391894f1a10068cdc25",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio snapshot owns the current skills inventory."
+    },
+    {
+      "id": "skills-languages",
+      "content_hash": "9538ee25f9d6adb8674bdc7ff29c90990061edf63b35da16f5aeed6988a3f47b",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio snapshot owns the current skills inventory."
+    },
+    {
+      "id": "skills-ai-ml",
+      "content_hash": "d69032eab85377ac544473a864967502924a1f350807ec763aee7a9e088603c9",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio snapshot owns the current skills inventory."
+    },
+    {
+      "id": "skills-frameworks",
+      "content_hash": "4f9fd8f1bd1646c15cf403ce48f41af46d5c022a3d09985d26022a6b6484bdd7",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio snapshot owns the current skills inventory."
+    },
+    {
+      "id": "skills-databases",
+      "content_hash": "0948eaeb7f3eb25172a59357e76a0edfabfe5be1e1632879b74cf06e42d55e34",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio snapshot owns the current skills inventory."
+    },
+    {
+      "id": "skills-tools",
+      "content_hash": "b26757c77f53003766afec4c05bddfbdbf31903fbbf122e895f5aac6c7baa09c",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio snapshot owns the current skills inventory."
+    },
+    {
+      "id": "skills-core-stack",
+      "content_hash": "6fbc7c18703d4957b7bcd77da068f86f88e4fe38e40681d73f173d59fcf0e35e",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio snapshot owns the current skills inventory."
+    },
+    {
+      "id": "experience-wistron-infocomm--phil",
+      "content_hash": "ccafc965cb5ab4660feb8bb67752aa0f267369bd762b8c62afc8b84783bac145",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio snapshot owns current employment and OJT facts."
+    },
+    {
+      "id": "experience-zameco-ii",
+      "content_hash": "7066fcd8105f6b9beb167b70e6dde8da512245fcc6cd737205a12c1ff40f8321",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio snapshot owns current employment and OJT facts."
+    },
+    {
+      "id": "project-ai-powered-computer-vision-aoi-system",
+      "content_hash": "c43214ebd6e9e19c599abd0829980019eee386a43a3d5d1f7744384e70d87b28",
+      "disposition": "replaced",
+      "reason": "Replaced by portfolio-owned AOI project facts, which use the corrected inspection-time reduction of more than 60%; the legacy 150% claim is superseded."
+    },
+    {
+      "id": "project-augmented-reality-board-schematic-system",
+      "content_hash": "e91d35c2c98a9630c38711a353c98f02066a972a582f12a52e25a2670f791f9c",
+      "disposition": "omitted",
+      "reason": "Omitted: this legacy AR board schematic system is absent as its own entity in the current portfolio; it is not assumed to be the AR-DUINO project."
+    },
+    {
+      "id": "project-company-llm-rag-system",
+      "content_hash": "157dd16752069caa319cacee99fced69b923d698b0794e03199fd9c50d0820c4",
+      "disposition": "replaced",
+      "reason": "Replaced by the current portfolio-owned Company LLM RAG System project facts."
+    },
+    {
+      "id": "project-densenet-121-powered-rice-leaf-disease-identifier",
+      "content_hash": "ec0d5ee8cb1a57152af2c528e3f13949ce29a54e833dec6dbcd5cb8c8db303d2",
+      "disposition": "omitted",
+      "reason": "Omitted: absent from the current portfolio snapshot; no identity or continued-project claim is inferred."
+    },
+    {
+      "id": "project-prmsu-college-of-engineering-website",
+      "content_hash": "40e142fa77b4fd08190256517b28a7ff936fcacce75b69bf16197909d6e96805",
+      "disposition": "omitted",
+      "reason": "Omitted: absent from the current portfolio snapshot; no identity or continued-project claim is inferred."
+    },
+    {
+      "id": "project-custom-simple-as-possible-computer-1",
+      "content_hash": "a6ce35213efaff5224ee417b918f461956d08bc038e8d574a115be7ab406b6ec",
+      "disposition": "omitted",
+      "reason": "Omitted: absent from the current portfolio snapshot; no identity or continued-project claim is inferred."
+    },
+    {
+      "id": "project-dancraft--a-minecraft-clone",
+      "content_hash": "19f7d7b5f6374363bb6e97032ffa5518102997732ca7c382103531b29138e65e",
+      "disposition": "omitted",
+      "reason": "Omitted: absent from the current portfolio snapshot; no identity or continued-project claim is inferred."
+    },
+    {
+      "id": "project-prmsu-faculty-monitoring-system",
+      "content_hash": "74d4d069aea2604e19a177d948a751bd720575dd01e6d4550c1e4c8b89cbc0a6",
+      "disposition": "omitted",
+      "reason": "Omitted: absent from the current portfolio snapshot; no identity or continued-project claim is inferred."
+    },
+    {
+      "id": "project-valorant-gun-skins-sale-database",
+      "content_hash": "f9affb979004618a140934994af02836403ae6487dbfcb1c74d464ee1addffa7",
+      "disposition": "omitted",
+      "reason": "Omitted: absent from the current portfolio snapshot; no identity or continued-project claim is inferred."
+    },
+    {
+      "id": "project-vs-code-portfolio",
+      "content_hash": "f2dc955619fd264a71366da529bde0e61a1880ca1585684e085f1a762faf80b9",
+      "disposition": "omitted",
+      "reason": "Omitted: absent from the current portfolio snapshot; no identity or continued-project claim is inferred."
+    },
+    {
+      "id": "leadership-1",
+      "content_hash": "a5f454e61db734252d2adcadf4a83ff0b22d2aa5acfbfa1a2b569cb71abb81ef",
+      "disposition": "split",
+      "reason": "Split: retain the exact 2023 - 2024 VP Internal tenure as an atomic detail subordinate to the portfolio leadership timeline."
+    },
+    {
+      "id": "leadership-2",
+      "content_hash": "61a342596a7f498b749c6b7497b20f1ea48d829a75206c404fa25165d20ddfd0",
+      "disposition": "replaced",
+      "reason": "Replaced: current portfolio leadership timeline already states the onboarding project work; no duplicate title is added."
+    },
+    {
+      "id": "award-1",
+      "content_hash": "2b15621d260e38205738def96ab65826e4aabb8ea93ec8106aa6dbd0cfdc5866",
+      "disposition": "split",
+      "reason": "Split: retain only the exact June 23, 2025 award date as an atomic fact; portfolio owns the Best in Thesis recognition and GWA."
+    },
+    {
+      "id": "award-2",
+      "content_hash": "320e5748bcf58fe4fb0aaaa3980648c4ffb06fc651703686a33f9ad88b995700",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "award-3",
+      "content_hash": "23e6e4d7c2eba6f060423eb3ac56c4574c3f66a0860ecda43bb4f4e0efba4006",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "certification-1",
+      "content_hash": "ffe4766820e3475ee0839e912a061f5401bef6667f24d27dd06c018a015f5c93",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "certification-2",
+      "content_hash": "b6bb302a53e9e364c15956d03d8f7d4bcca98eb7747d63bcb98af276985b585d",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "certification-3",
+      "content_hash": "546b06d384d8c1e1d195a83afe48a3b386e3b101ff63f4fd6d73916fe2c3f011",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "certification-4",
+      "content_hash": "c795e7c340edc87434ca434c63333a65dbdacb86ed5fe5aa3704630e13962387",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "certification-5",
+      "content_hash": "8abc4f652e631ae885155364fc6896aae4d176bc1c087b5480762b545b1708fb",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "certification-6",
+      "content_hash": "55ffccd5272135b2a66cb9f51dadc56674803cafaf1c65d9d1141cbf8974e2d1",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "seminar-artificial-intelligence---machine-learning",
+      "content_hash": "d9778d3251daa0f71670acd2f10c5548e661ea550298be769a2702efa1588947",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "seminar-web---software-development",
+      "content_hash": "4ab7fe7a733dc93c6402093806c27f942e50d49f4b2f8f6e662a8877462736cf",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "seminar-cybersecurity",
+      "content_hash": "83447cf5ec43a8912755b1421be9b1bcbbcad436b557fbcc9dd35c80bcec2c60",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "seminar-labor---professional-development",
+      "content_hash": "684d764415c83212c37191b3f597adffa0dae19940b02cd46b85625035a0346c",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "seminar-professional-conferences",
+      "content_hash": "4485b6c089e36e81afc0d6db51d3ac1ff9aef32c01df26a25f5bccd87ab70c5e",
+      "disposition": "split",
+      "reason": "Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative."
+    },
+    {
+      "id": "metrics-career-impact",
+      "content_hash": "e7fb7762cc693884844e4ec588c15cad5270f89376c222dacfc544d0c23a3021",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio owns current metrics; corrected AOI reduction is more than 60%, not the legacy 150%."
+    },
+    {
+      "id": "languages-spoken",
+      "content_hash": "d046cdc0e9916f32cb0afbcda31b3a9a6e245768157a9a4733b6dfcc49f73046",
+      "disposition": "replaced",
+      "reason": "Spoken languages now come from reviewed resume evidence; the duplicate legacy record is not imported."
+    },
+    {
+      "id": "reference-1",
+      "content_hash": "85973fa330ff2c9790b81d6cbf722cd5b3a8535cf47707bf092c2eac232dd8ef",
+      "disposition": "omitted",
+      "reason": "Omitted: the user approved retaining only the résumé-supported references-available-upon-request policy; referee names and personal contact details are excluded."
+    },
+    {
+      "id": "reference-2",
+      "content_hash": "04e674bf83c55ee7e32a068e8fe7f203bbfe6b5c377e25ed9d64cc196b5e8bb0",
+      "disposition": "omitted",
+      "reason": "Omitted: the user approved retaining only the résumé-supported references-available-upon-request policy; referee names and personal contact details are excluded."
+    },
+    {
+      "id": "contact-links",
+      "content_hash": "6f25d49602e2ca0d0ee7e7adf8e43740a84a013b45b7b65d4d28b2b36c325352",
+      "disposition": "replaced",
+      "reason": "Replaced: portfolio owns contact/profile links; legacy phone and email values are not copied into supplemental facts."
+    }
+  ],
+  "supplemental_facts": [
+    {
+      "id": "supplement:education:prmsu:institution_location",
+      "entity_id": "education:prmsu",
+      "fact_key": "institution_location",
+      "section": "education",
+      "title": "PRMSU location",
+      "text": "President Ramon Magsaysay State University is in Iba, Zambales, Philippines.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "education-college",
+          "quote": "President Ramon Magsaysay State University in Iba, Zambales, Philippines"
+        }
+      ],
+      "requires_portfolio_ids": [
+        "portfolio:timeline:timeline-computer-engineering-graduate"
+      ],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:education:prmsu:major",
+      "entity_id": "education:prmsu",
+      "fact_key": "major",
+      "section": "education",
+      "title": "Major",
+      "text": "Daniel majored in Software Development at President Ramon Magsaysay State University.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "education-college",
+          "quote": "major in Software Development"
+        }
+      ],
+      "requires_portfolio_ids": [
+        "portfolio:timeline:timeline-computer-engineering-graduate"
+      ],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:education:prmsu:coursework",
+      "entity_id": "education:prmsu",
+      "fact_key": "coursework",
+      "section": "education",
+      "title": "Coursework",
+      "text": "Daniel's BS Computer Engineering coursework at President Ramon Magsaysay State University included Software Development, Computer Engineering, Machine Learning, Database Management, CAD and Design, Embedded Systems, and Web Development.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "education-college",
+          "quote": "Coursework included Software Development; Computer Engineering; Machine Learning; Database Management; CAD and Design; Embedded Systems; Web Development"
+        }
+      ],
+      "requires_portfolio_ids": [
+        "portfolio:timeline:timeline-computer-engineering-graduate"
+      ],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:education:saint-james-school-of-subic:period",
+      "entity_id": "education:saint-james-school-of-subic",
+      "fact_key": "period",
+      "section": "education",
+      "title": "Senior high school",
+      "text": "Completed the STEM strand at Saint James School of Subic Inc. from 2019 - 2021.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "education-summary",
+          "quote": "For senior high school, Daniel completed the STEM strand at Saint James School of Subic Inc. from 2019 - 2021."
+        },
+        {
+          "kind": "legacy",
+          "document_id": "education-previous-1",
+          "quote": "Daniel completed STEM Graduate at Saint James School of Subic Inc. from 2019 - 2021."
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:education:saint-james-school-of-subic:honors",
+      "entity_id": "education:saint-james-school-of-subic",
+      "fact_key": "honors",
+      "section": "education",
+      "title": "Senior high honors",
+      "text": "At Saint James School of Subic Inc., Daniel received With Honors in Grade 11 and With High Honors in Grade 12.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "education-previous-1",
+          "quote": "Grade 11 With Honors; Grade 12 With High Honors"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:award:2nd-runner-up-8th-cpe-challenge-robothon-competition:recognition",
+      "entity_id": "award:2nd-runner-up-8th-cpe-challenge-robothon-competition",
+      "fact_key": "recognition",
+      "section": "awards",
+      "title": "2nd Runner-Up, 8th CpE Challenge: Robothon Competition",
+      "text": "2nd Runner-Up, 8th CpE Challenge: Robothon Competition; Regional Level, Institute of Computer Engineers of the Philippines Student Edition; March 8, 2025.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "award-2",
+          "quote": "Award: 2nd Runner-Up, 8th CpE Challenge: Robothon Competition. Related project or event: Regional Level, Institute of Computer Engineers of the Philippines Student Edition. Date: March 8, 2025."
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:award:3rd-runner-up-7th-cpe-challenge-robothon-competition:recognition",
+      "entity_id": "award:3rd-runner-up-7th-cpe-challenge-robothon-competition",
+      "fact_key": "recognition",
+      "section": "awards",
+      "title": "3rd Runner-Up, 7th CpE Challenge: Robothon Competition",
+      "text": "3rd Runner-Up, 7th CpE Challenge: Robothon Competition; Regional Level, Institute of Computer Engineers of the Philippines Student Edition Region 3; January 17, 2024.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "award-3",
+          "quote": "Award: 3rd Runner-Up, 7th CpE Challenge: Robothon Competition. Related project or event: Regional Level, Institute of Computer Engineers of the Philippines Student Edition Region 3. Date: January 17, 2024."
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:certification:aws-cloud-practitioner-track:completion",
+      "entity_id": "certification:aws-cloud-practitioner-track",
+      "fact_key": "completion",
+      "section": "certifications",
+      "title": "AWS Cloud Practitioner Track Completion",
+      "text": "AWS Cloud Practitioner Track Completion (DataCamp), completed June 15, 2025. This records track completion, not an AWS certification exam credential.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "resume",
+          "page_number": 1,
+          "quote": "AWS Cloud Practitioner Track Completion (Datacamp)"
+        },
+        {
+          "kind": "legacy",
+          "document_id": "certification-1",
+          "quote": "Certification: AWS Cloud Practitioner (CLF-C02) Track Completion. Issuer: DataCamp. Date: June 15, 2025."
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:certification:certified-safety-officer-2:completion",
+      "entity_id": "certification:certified-safety-officer-2",
+      "fact_key": "completion",
+      "section": "certifications",
+      "title": "Certified Safety Officer 2",
+      "text": "Certified Safety Officer 02 (SO2), completed March 19, 20, 21, and 28, 2025; issuer/training: PRMSU / Basic Occupational Safety and Health Training.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "resume",
+          "page_number": 1,
+          "quote": "Certified Safety Officer 02 (SO2)"
+        },
+        {
+          "kind": "legacy",
+          "document_id": "certification-2",
+          "quote": "Certification: Certified Safety Officer 2. Issuer: PRMSU / Basic Occupational Safety and Health Training. Date: March 19, 20, 21, and 28, 2025."
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:certification:intermediate-sql-course:completion",
+      "entity_id": "certification:intermediate-sql-course",
+      "fact_key": "completion",
+      "section": "certifications",
+      "title": "Intermediate SQL Course",
+      "text": "Intermediate SQL Course, DataCamp, June 12, 2025.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "certification-3",
+          "quote": "Certification: Intermediate SQL Course. Issuer: DataCamp. Date: June 12, 2025."
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:certification:introduction-to-power-bi-course:completion",
+      "entity_id": "certification:introduction-to-power-bi-course",
+      "fact_key": "completion",
+      "section": "certifications",
+      "title": "Introduction to Power BI Course",
+      "text": "Introduction to Power BI Course, DataCamp, June 17, 2025.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "certification-4",
+          "quote": "Certification: Introduction to Power BI Course. Issuer: DataCamp. Date: June 17, 2025."
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:certification:intermediate-r-course:completion",
+      "entity_id": "certification:intermediate-r-course",
+      "fact_key": "completion",
+      "section": "certifications",
+      "title": "Intermediate R Course",
+      "text": "Intermediate R Course, DataCamp, June 18, 2025.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "certification-5",
+          "quote": "Certification: Intermediate R Course. Issuer: DataCamp. Date: June 18, 2025."
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:certification:intermediate-in-python-course:completion",
+      "entity_id": "certification:intermediate-in-python-course",
+      "fact_key": "completion",
+      "section": "certifications",
+      "title": "Intermediate in Python Course",
+      "text": "Intermediate in Python Course, DataCamp, February 15, 2025.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "certification-6",
+          "quote": "Certification: Intermediate in Python Course. Issuer: DataCamp. Date: February 15, 2025."
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:language:spoken:languages",
+      "entity_id": "language:spoken",
+      "fact_key": "languages",
+      "section": "languages",
+      "title": "Spoken languages",
+      "text": "Languages: English and Filipino.",
+      "owner": "resume",
+      "sources": [
+        {
+          "kind": "resume",
+          "page_number": 1,
+          "quote": "Languages: English, Filipino."
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:references:availability-policy",
+      "entity_id": "references",
+      "fact_key": "availability-policy",
+      "section": "references",
+      "title": "References",
+      "text": "References available upon request.",
+      "owner": "resume",
+      "sources": [
+        {
+          "kind": "resume",
+          "page_number": 1,
+          "quote": "Reference available upon request"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:seminar:ai-powered-engineer-mastering-machine-learning-for-real-world-impact:attendance",
+      "entity_id": "seminar:ai-powered-engineer-mastering-machine-learning-for-real-world-impact",
+      "fact_key": "attendance",
+      "section": "seminars",
+      "title": "AI-Powered Engineer: Mastering Machine Learning for Real-World Impact",
+      "text": "AI-Powered Engineer: Mastering Machine Learning for Real-World Impact, April 11, 2025, CCIT, PRMSU Main",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "seminar-artificial-intelligence---machine-learning",
+          "quote": "AI-Powered Engineer: Mastering Machine Learning for Real-World Impact, April 11, 2025, CCIT, PRMSU Main"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:seminar:machine-learning-in-embedded-systems-object-detection-using-esp32-cam:attendance",
+      "entity_id": "seminar:machine-learning-in-embedded-systems-object-detection-using-esp32-cam",
+      "fact_key": "attendance",
+      "section": "seminars",
+      "title": "Machine Learning in Embedded Systems: Object Detection Using ESP32-CAM",
+      "text": "Machine Learning in Embedded Systems: Object Detection Using ESP32-CAM, April 11, 2025, CCIT, PRMSU Main",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "seminar-artificial-intelligence---machine-learning",
+          "quote": "Machine Learning in Embedded Systems: Object Detection Using ESP32-CAM, April 11, 2025, CCIT, PRMSU Main"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:seminar:ai-big-data-foundation-and-future:attendance",
+      "entity_id": "seminar:ai-big-data-foundation-and-future",
+      "fact_key": "attendance",
+      "section": "seminars",
+      "title": "AI & Big Data: Foundation and Future",
+      "text": "AI & Big Data: Foundation and Future, April 3, 2025, Multimedia Section, E-Library, PRMSU Main",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "seminar-artificial-intelligence---machine-learning",
+          "quote": "AI & Big Data: Foundation and Future, April 3, 2025, Multimedia Section, E-Library, PRMSU Main"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:seminar:neural-networks-and-deep-learning:attendance",
+      "entity_id": "seminar:neural-networks-and-deep-learning",
+      "fact_key": "attendance",
+      "section": "seminars",
+      "title": "Neural Networks and Deep Learning",
+      "text": "Neural Networks and Deep Learning, April 15, 2025, SELB-AVR and CCIT Lab, PRMSU Main",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "seminar-artificial-intelligence---machine-learning",
+          "quote": "Neural Networks and Deep Learning, April 15, 2025, SELB-AVR and CCIT Lab, PRMSU Main"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:seminar:hybrid-web-application-development:attendance",
+      "entity_id": "seminar:hybrid-web-application-development",
+      "fact_key": "attendance",
+      "section": "seminars",
+      "title": "Hybrid Web Application Development",
+      "text": "Hybrid Web Application Development, April 29, 2025, SELB-AVR, PRMSU Main",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "seminar-web---software-development",
+          "quote": "Hybrid Web Application Development, April 29, 2025, SELB-AVR, PRMSU Main"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:seminar:from-code-to-community-impact-in-the-digital-era:attendance",
+      "entity_id": "seminar:from-code-to-community-impact-in-the-digital-era",
+      "fact_key": "attendance",
+      "section": "seminars",
+      "title": "From Code to Community: Impact in the Digital Era",
+      "text": "From Code to Community: Impact in the Digital Era, March 8, 2025, ICpEP.se R3GA",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "seminar-web---software-development",
+          "quote": "From Code to Community: Impact in the Digital Era, March 8, 2025, ICpEP.se R3GA"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:seminar:3rd-regional-cybersecurity-conference-navigating-ai-s-double-edged-sword:attendance",
+      "entity_id": "seminar:3rd-regional-cybersecurity-conference-navigating-ai-s-double-edged-sword",
+      "fact_key": "attendance",
+      "section": "seminars",
+      "title": "3rd Regional Cybersecurity Conference: Navigating AI's Double-Edged Sword",
+      "text": "3rd Regional Cybersecurity Conference: Navigating AI's Double-Edged Sword, February 7, 2025, Holy Angel University",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "seminar-cybersecurity",
+          "quote": "3rd Regional Cybersecurity Conference: Navigating AI's Double-Edged Sword, February 7, 2025, Holy Angel University"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:seminar:labor-and-employment-seminar:attendance",
+      "entity_id": "seminar:labor-and-employment-seminar",
+      "fact_key": "attendance",
+      "section": "seminars",
+      "title": "Labor and Employment Seminar",
+      "text": "Labor and Employment Seminar, May 9, 2025, CTE AVR, PRMSU Main",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "seminar-labor---professional-development",
+          "quote": "Labor and Employment Seminar, May 9, 2025, CTE AVR, PRMSU Main"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:seminar:electronics-product-development-center:attendance",
+      "entity_id": "seminar:electronics-product-development-center",
+      "fact_key": "attendance",
+      "section": "seminars",
+      "title": "Electronics Product Development Center",
+      "text": "Electronics Product Development Center, April 11, 2024, Taguig",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "seminar-labor---professional-development",
+          "quote": "Electronics Product Development Center, April 11, 2024, Taguig"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:seminar:microchip-technology-operations-philippines:attendance",
+      "entity_id": "seminar:microchip-technology-operations-philippines",
+      "fact_key": "attendance",
+      "section": "seminars",
+      "title": "Microchip Technology Operations Philippines",
+      "text": "Microchip Technology Operations Philippines, April 11, 2024, Calamba",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "seminar-labor---professional-development",
+          "quote": "Microchip Technology Operations Philippines, April 11, 2024, Calamba"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:seminar:hytec-power-incorporated:attendance",
+      "entity_id": "seminar:hytec-power-incorporated",
+      "fact_key": "attendance",
+      "section": "seminars",
+      "title": "HYTEC Power Incorporated",
+      "text": "HYTEC Power Incorporated, April 12, 2024, Quezon City",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "seminar-labor---professional-development",
+          "quote": "HYTEC Power Incorporated, April 12, 2024, Quezon City"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:seminar:general-assembly-level-up-pioneering-computer-engineering:attendance",
+      "entity_id": "seminar:general-assembly-level-up-pioneering-computer-engineering",
+      "fact_key": "attendance",
+      "section": "seminars",
+      "title": "General Assembly: Level Up - Pioneering Computer Engineering",
+      "text": "General Assembly: Level Up - Pioneering Computer Engineering, March 8, 2025, ICpEP.se R3GA",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "seminar-professional-conferences",
+          "quote": "General Assembly: Level Up - Pioneering Computer Engineering, March 8, 2025, ICpEP.se R3GA"
+        }
+      ],
+      "requires_portfolio_ids": [],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:leadership:vp-internal-tenure",
+      "entity_id": "leadership:icpep-vp-internal",
+      "fact_key": "tenure",
+      "section": "leadership_and_community",
+      "title": "Vice President Internal tenure",
+      "text": "Vice President Internal for Institute of Computer Engineers of the Philippines Student Edition, PRMSU Chapter, during 2023 - 2024.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "leadership-1",
+          "quote": "Daniel served as Vice President Internal for Institute of Computer Engineers of the Philippines Student Edition, PRMSU Chapter during 2023 - 2024. Served in student leadership for ICpEP.se PRMSU chapter."
+        }
+      ],
+      "requires_portfolio_ids": [
+        "portfolio:timeline:timeline-icpep-vp-internal"
+      ],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:education:prmsu:degree-period",
+      "entity_id": "education:prmsu",
+      "fact_key": "degree-period",
+      "section": "education",
+      "title": "BS Computer Engineering period",
+      "text": "BS Computer Engineering at President Ramon Magsaysay State University, 2021 - 2025.",
+      "owner": "resume",
+      "sources": [
+        {
+          "kind": "resume",
+          "page_number": 1,
+          "quote": "PRESIDENT RAMON MAGSAYSAY STATE UNIVERSITY 2021 - 2025"
+        },
+        {
+          "kind": "legacy",
+          "document_id": "education-college",
+          "quote": "completed a Bachelor of Science in Computer Engineering from 2021 - 2025"
+        }
+      ],
+      "requires_portfolio_ids": [
+        "portfolio:timeline:timeline-computer-engineering-graduate"
+      ],
+      "portfolio_wins": []
+    },
+    {
+      "id": "supplement:education:prmsu:thesis-award-date",
+      "entity_id": "education:prmsu",
+      "fact_key": "thesis-award-date",
+      "section": "education",
+      "title": "Best in Thesis award date",
+      "text": "The Best in Thesis Award was dated June 23, 2025.",
+      "owner": "curated",
+      "sources": [
+        {
+          "kind": "legacy",
+          "document_id": "award-1",
+          "quote": "Date: June 23, 2025."
+        }
+      ],
+      "requires_portfolio_ids": [
+        "portfolio:timeline:timeline-computer-engineering-graduate"
+      ],
+      "portfolio_wins": []
+    }
+  ],
+  "portfolio_review_hashes": {
+    "portfolio:timeline:timeline-computer-engineering-graduate": "4ea26b43e1350cf880668aef6a7be18546e560dc77020824802715e46900e7e7",
+    "portfolio:timeline:timeline-icpep-vp-internal": "86f744494e70cff74502faf787ecb07779c8a5cdc80bab5530636df9b125bbca"
+  }
+}

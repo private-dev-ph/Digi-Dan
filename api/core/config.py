@@ -1,11 +1,16 @@
 import os
 from functools import lru_cache
+from typing import Literal
 
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
 
 class Settings(BaseModel):
+    knowledge_mode: Literal["legacy", "versioned"] = "legacy"
+    knowledge_environment: Literal["test", "production"] = "test"
+    upstash_redis_rest_url: str | None = None
+    upstash_redis_rest_token: str | None = None
     app_name: str = "Digi-Dan"
     cors_origins: list[str] = Field(default_factory=list)
     allowed_origin_domains: list[str] = Field(default_factory=lambda: ["zachcodes.vercel.app"])
@@ -42,6 +47,10 @@ def _csv(value: str | None) -> list[str]:
 def get_settings() -> Settings:
     load_dotenv()
     return Settings(
+        knowledge_mode=os.getenv("KNOWLEDGE_MODE", "legacy"),
+        knowledge_environment=os.getenv("KNOWLEDGE_ENVIRONMENT", "test"),
+        upstash_redis_rest_url=os.getenv("UPSTASH_REDIS_REST_URL") or None,
+        upstash_redis_rest_token=os.getenv("UPSTASH_REDIS_REST_TOKEN") or None,
         app_name=os.getenv("APP_NAME", "Digi-Dan"),
         cors_origins=_csv(os.getenv("CORS_ORIGINS")),
         allowed_origin_domains=_csv(os.getenv("ALLOWED_ORIGIN_DOMAINS")) or ["zachcodes.vercel.app"],

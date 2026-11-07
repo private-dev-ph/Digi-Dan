@@ -1,0 +1,4 @@
+# Optional preparation worker dependencies; not needed by the chat API.
+pypdf==6.10.0
+pypdfium2==5.14.0
+Pillow==13.0.0

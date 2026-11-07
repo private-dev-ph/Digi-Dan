@@ -26,3 +26,19 @@ Digi-Dan is a retrieval-augmented generation (RAG) backend for a portfolio assis
 Keep product-specific details close to their source of truth. Update the README when endpoint behavior, required configuration, deployment, or security boundaries change. Update [`portfolio-showcase.json`](../portfolio-showcase.json) and its referenced assets when changing the public project story.
 
 [TODO: Add a changelog or release-notes link if this project adopts one.]
+
+## Resume preparation
+
+[Resume PDF preparation](resume-import.md) documents change detection, local text/OCR extraction, quality checks and preservation of the last valid extraction before Stage 2 ownership migration.
+
+## Knowledge assembly
+
+[Stage 2 knowledge assembly](knowledge-assembly.md) describes source ownership, reviewed supplements, bounded chunks, candidate validation and the local command. [Migration inventory](knowledge-migration.md) records the disposition of all legacy documents.
+
+## Versioned knowledge
+
+[Stage 3 local versioning](knowledge-versioning.md) covers isolated staging, verification, activation, rollback, cleanup, chat integration and the remaining cloud integration milestone.
+
+[Stage 3 cloud preparation](knowledge-cloud-tests.md) covers the isolated test Redis setup, cloud adapters, offline/read-only preflight, and the remaining live validation steps.
+
+[Production integration](production-integration.md) describes source verification, runtime readiness and the controlled publication order.
