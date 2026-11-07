@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "kind": "production-retrieval-probes",
+  "probes": [
+    {"question": "motherboard inspection time 5 minutes under 2 minutes reduction", "expected_ids": ["portfolio:project:project-aoi-system:results:chunk:0001"], "top_k": 4},
+    {"question": "BS Computer Engineering degree period President Ramon Magsaysay State University 2021 2025", "expected_ids": ["supplement:education:prmsu:degree-period"], "top_k": 4},
+    {"question": "references available upon request", "expected_ids": ["supplement:references:availability-policy"], "top_k": 4},
+    {"question": "AWS Cloud Practitioner Track Completion DataCamp June", "expected_ids": ["supplement:certification:aws-cloud-practitioner-track:completion"], "top_k": 4}
+  ]
+}

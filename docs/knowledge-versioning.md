@@ -1,5 +1,7 @@
 # Stage 3: versioned knowledge, local phase
 
+> Historical milestone notes: production adapters, deployed-source validation and controlled rollout commands are now implemented. Use [Production integration and rollout](production-integration.md) for current configuration and operating instructions. Original milestone status statements below describe their dates.
+
 This implementation builds, verifies, activates and rolls back knowledge through injected storage and embedding interfaces. The isolated local adapters persist to SQLite and use deterministic token-hash embeddings. They do not load cloud credentials or contact external services.
 
 The current production path remains in `legacy` mode by default. Do not enable `KNOWLEDGE_MODE=versioned` on Vercel yet: cloud adapters are implemented and covered by mocked tests; deployed-source verification and live cloud integration checks remain pending. See [cloud preparation](knowledge-cloud-tests.md). A versioned app without an injected knowledge service returns a controlled 503; it never silently chooses the legacy namespace.

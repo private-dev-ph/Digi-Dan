@@ -193,5 +193,6 @@ AGENTS.md
 # Isolated Stage 3 registry and vector database
 .knowledge-local-state/
 
-# Isolated cloud-test credentials
+# Local cloud credentials
 .env.cloud-test
+.env.cloud-production

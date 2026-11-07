@@ -1,5 +1,7 @@
 # Stage 3 cloud preparation
 
+> Historical milestone notes: production adapters, deployed-source validation and controlled rollout commands are now implemented. Use [Production integration and rollout](production-integration.md) for current configuration and operating instructions. Original milestone status statements below describe their dates.
+
 Cloud adapters are available for the shared Redis registry, Upstash Vector and Gemini embeddings. The application remains in legacy mode and still requires explicit service injection for versioned chat. This is preparation for isolated cloud tests, not a production cutover. The repository's existing Python environment and pinned dependencies are sufficient.
 
 ## Test resources

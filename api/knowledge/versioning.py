@@ -170,6 +170,10 @@ class KnowledgeService:
             def noop(s):
                 if s.get("generation", 0) != expected_generation or s.get("active") != prior["ticket"]:
                     _fail("generation_conflict")
+                # A content-identical build can carry a newer deployment
+                # receipt. Keep the immutable content identity while
+                # refreshing the receipt used by later activation checks.
+                s["versions"][prior["ticket"]]["source"] = copy.deepcopy(source)
                 s["generation"] = expected_generation + 1
                 s["desired"] = prior["ticket"]
                 s["last_attempt"] = {"status": "unchanged", "ticket": prior["ticket"], "source": source, "at": self.clock()}
@@ -300,8 +304,12 @@ class KnowledgeService:
         except VersioningError:
             pass
 
-    def activate(self, ticket, *, verify_source):
+    def activate(self, ticket, *, verify_source, expected_generation=None):
+        if expected_generation is not None and (type(expected_generation) is not int or expected_generation < 0):
+            _fail("invalid_generation")
         rec = self._record(ticket)
+        if expected_generation is not None and self._read()[1].get("generation", 0) != expected_generation:
+            _fail("generation_conflict")
         if rec.get("status") != "verified":
             _fail("version_not_verified")
         if self._read()[1].get("desired") != ticket:
@@ -310,6 +318,8 @@ class KnowledgeService:
         self._run_probes(rec)
         self._verify_source(verify_source, rec)
         def change(s):
+            if expected_generation is not None and s.get("generation", 0) != expected_generation:
+                _fail("generation_conflict")
             current = s.get("versions", {}).get(ticket)
             if s.get("desired") != ticket or current is None or current.get("status") != "verified":
                 _fail("superseded")
@@ -326,6 +336,8 @@ class KnowledgeService:
         return self._result("active", active)
 
     def rollback(self, ticket, *, expected_generation, verify_source):
+        if type(expected_generation) is not int or expected_generation < 0:
+            _fail("invalid_generation")
         rec = self._record(ticket)
         state = self._read()[1]
         if rec.get("status") != "verified" or ticket not in ([state.get("active")] + state.get("history", [])):
@@ -333,8 +345,6 @@ class KnowledgeService:
         self._validate_storage(rec)
         self._run_probes(rec)
         self._verify_source(verify_source, rec)
-        if type(expected_generation) is not int or expected_generation < 0:
-            _fail("invalid_generation")
         def intent(s):
             current = s.get("versions", {}).get(ticket)
             if s.get("generation", 0) != expected_generation:
@@ -344,7 +354,8 @@ class KnowledgeService:
             s["generation"] = expected_generation + 1
             s["desired"] = ticket
         self._update(intent)
-        return self.activate(ticket, verify_source=verify_source)
+        return self.activate(ticket, verify_source=verify_source,
+                             expected_generation=expected_generation + 1)
 
     def get_active(self):
         state = self._read()[1]

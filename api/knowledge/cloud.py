@@ -49,10 +49,10 @@ def cloud_configuration(settings):
             'embedding_profile': profile}
 
 
-def create_cloud_stores(settings, *, writable=False):
+def _create_cloud_stores(settings, *, writable=False, production_staging=False):
     config = cloud_configuration(settings)
     # Production writes require the deployment/source-verification milestone.
-    if writable and config['environment'] != 'test':
+    if writable and config['environment'] != 'test' and not production_staging:
         raise VersioningError('production_writes_not_enabled')
     registry = UpstashRedisRegistry(
         _url(settings.upstash_redis_rest_url), settings.upstash_redis_rest_token,
@@ -69,8 +69,19 @@ def create_cloud_stores(settings, *, writable=False):
     return registry, vectors
 
 
+def create_cloud_stores(settings, *, writable=False):
+    """Construct cloud stores; production writes remain disabled here."""
+    return _create_cloud_stores(settings, writable=writable)
+
+
 def create_cloud_service(settings, *, writable=False):
     registry, vectors = create_cloud_stores(settings, writable=writable)
     return KnowledgeService(registry, vectors, GeminiEmbedder(settings.gemini_api_key,
                             max_attempts=3 if writable else 1),
                             poll_attempts=12, poll_interval=1.0)
+
+
+def create_production_stager(settings, *, site_url):
+    """Create a source-bound production staging service without activation APIs."""
+    from .production_staging import create_production_stager as factory
+    return factory(settings, site_url=site_url)

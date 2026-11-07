@@ -139,6 +139,17 @@ class Stage3VersioningTests(unittest.TestCase):
         self.assertEqual(rolled["ticket"], one["ticket"])
         self.assertEqual(self.service.get_active()["ticket"], one["ticket"])
 
+    def test_identical_content_refreshes_active_deployment_receipt(self):
+        first = self.sync()
+        updated = candidate(provenance={**candidate()["provenance"],
+            "portfolio_source": {"site_url": "https://example.test", "deployment_id": "new"}})
+        result = self.service.sync(updated, PROFILE,
+            expected_generation=self.registry.state["generation"],
+            verify_source=self.verify, probes=PROBES, activate=False)
+        self.assertEqual(result["status"], "unchanged")
+        self.assertEqual(result["ticket"], first["ticket"])
+        self.assertEqual(self.registry.state["versions"][first["ticket"]]["source"], updated["provenance"])
+        self.assertEqual(len(self.registry.state["versions"]), 1)
     def test_stale_source_on_activation_cannot_flip_pointer(self):
         first = self.sync()
         self.clock.now += 1
