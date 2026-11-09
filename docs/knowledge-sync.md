@@ -39,11 +39,11 @@ Existing production fallback behavior remains available through the legacy deplo
 
 Keep normal source review and commit practices. To freeze production knowledge synchronization, set `KNOWLEDGE_SYNC_ENABLED=false` in both Digi-Dan and the portfolio repository. This stops future sync dispatches while keeping chat available; a job already running may finish. Do not substitute a blind upload.
 
-The portfolio source is revalidated hourly, and knowledge reconciliation also runs hourly at minute 17. Updates then depend on workflow queue time, provider and platform delays, and the portfolio cache refresh. There is no fixed maximum time for a source change to appear in chat.
+The portfolio source is revalidated hourly, and knowledge reconciliation is scheduled hourly at minute 7. Updates then depend on workflow queue time, provider and platform delays, and the portfolio cache refresh. There is no fixed maximum time for a source change to appear in chat.
 
 ## GitHub Actions configuration
 
-The `Sync production knowledge` workflow runs hourly at minute 17, can be dispatched for a check or sync, and reacts to pushes to the configured production knowledge, policy, assembly, resume-preparation, and workflow files on `main`. Its concurrency group serializes runs and it does not cancel an active run. The scheduled and push sync paths require the repository variable `KNOWLEDGE_SYNC_ENABLED` to equal `true`; a manual check is allowed while it is false.
+The `Sync production knowledge` workflow is scheduled hourly at minute 7, can be dispatched for a check or sync, and reacts to pushes to the configured production knowledge, policy, assembly, resume-preparation, and workflow files on `main`. Its concurrency group serializes runs and it does not cancel an active run. The scheduled and push sync paths require the repository variable `KNOWLEDGE_SYNC_ENABLED` to equal `true`; a manual check is allowed while it is false.
 
 Set `KNOWLEDGE_SYNC_ENABLED=false` in both Digi-Dan and the portfolio repository initially. Enable it only after the hosted check and deployment configuration review are complete. Digi-Dan's workflow consumes these six repository secrets:
 
