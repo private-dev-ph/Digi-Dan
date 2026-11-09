@@ -1,6 +1,6 @@
 # Production knowledge synchronization
 
-Stage 4 provides a CLI and a scheduled GitHub Actions workflow for reconciling the reviewed knowledge candidate with the active production version. The workflow is present, but Stage 4 has **not yet been enabled or activated in the hosted environment**. A successful local check does not mean production has been synchronized.
+Stage 4 provides a CLI and a scheduled GitHub Actions workflow for reconciling the reviewed knowledge candidate with the active production version. Production automation was enabled on November 9, 2026 after a hosted read-only check and a controlled unchanged sync passed. A replayed successful portfolio production deployment also dispatched and completed a sync. Check the Actions run history and durable journal for current operational status; a successful local check alone does not prove production has synchronized.
 
 ## Local commands
 
