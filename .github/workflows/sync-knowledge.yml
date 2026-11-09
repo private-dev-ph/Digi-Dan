@@ -16,7 +16,7 @@ on:
         default: manual
         required: true
   schedule:
-    - cron: '17 * * * *'
+    - cron: '7 * * * *'
   push:
     branches: [main]
     paths:
