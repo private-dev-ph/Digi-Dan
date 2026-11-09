@@ -1,0 +1,27 @@
+{
+  "content_hash": "dad848496043b57123b499fe7144bfd4b6fbc38cef894d891e84a02afc974c18",
+  "extractor": {
+    "ocr_engine": "tesseract v5.5.3.20260724",
+    "pdfium_version": "5.14.0",
+    "policy_version": "2",
+    "pypdf_version": "6.10.0"
+  },
+  "kind": "resume-extraction",
+  "page_count": 1,
+  "pages": [
+    {
+      "method": "ocr",
+      "ocr_mean_confidence": 91.38987052148997,
+      "page_number": 1,
+      "text": "DANIEL ZACHARY M. MERCURIO\nSOFTWARE DEVELOPER\nSubic, Zambales | danielzacharymercurio@gmail.com | www.ZachCodes.vercel.app\nAbout Me\nComputer engineer seeking a software developer role that draws on my broad technical skill set; from\nprogramming, front-end, and database management to computer vision, LLMs, and machine learning\nsystems; to support projects end to end and drive continuous improvement\nExperience\nSOFTWARE/AUTOMATIONS ENGINEER WISTRON INFOCOMM, PHIL. 2025 - Present\ne Lead Developer of Al-powered computer vision AOI system\n© Engineered a full-stack Al system, including board capturing system, local processing,\nand custom vision models.\n© Streamlined the Al data pipeline, delivering cleaned and annotated datasets for\nindustrial-grade inspection.\nReduced motherboard inspection time by 150%\nShowcased to international customers (HP, Dell, Zebra, etc.)\nOptimized computer vision system to run on edge devices\nCurated high-quality datasets by managing the end-to-end data pipeline, including\ncollection, cleaning, and precision annotation for model training.\ne Lead Developer of Augmented Reality Board Schematic System\n© Reduced motherboard net tracing time by 60%\n© Developed PCB design and analysis tool\n© Optimized board tracking and accuracy\ne Developer of company LLM RAG System\n9° Local and Cloud-based LLM support\n© RAG System on proprietary company data\nIT AND ADMINISTRATIVE WORK - OJT —sZAMECO II June - July 2024\n¢ Completed 240 hours of On-the-Job training\ne Implemented VBA automation scripts to Excel sheets (30% productivity increase)\n¢ Managed and sorted 4 years of backlogged data and job order\ne Implemented updated mapping technology (QGIS)\nSkills\nProgramming: C++, Python, C#, Java, Dart (Flutter), Rust, Arduino, MicroPython\nWeb Development: HTML, CSS, JavaScript, React, Node.js, Vue, Angular, Shopify\nDatabase Management: SQL, NoSQL, PHP, R\nAl Development: OpenCV, YOLO, CNN, Vino, LLM, RAG, Agentic, MLOps, Edge Al, Pretraining (SSL Distilation)\nTools: Git/Github, Docker, Figma, PowerBI, Kaggle/Jupyter\no 090 0\nEducation\nPRESIDENT RAMON MAGSAYSAY STATE UNIVERSITY 2021 - 2025\nBS Computer Engineering GWA: 1.66\nAdditional information\ne Languages: English, Filipino.\n¢ Certifications: AWS Cloud Practitioner Track Completion (Datacamp) Certified Safety Officer 02 (SO2).\ne Awards/Activities: Best in Thesis Award (2025), VP Internal ICpEP.se PRMSU (2023), Onboarding\nProject Lead (2023)\n¢ GitHub Profile: github.com/private-dev-ph\ne Reference available upon request"
+    }
+  ],
+  "pipeline_version": "2",
+  "review_status": "pending",
+  "schema_version": 1,
+  "source": {
+    "byte_length": 58365,
+    "pdf_sha256": "60eba1cea663de53bcb403aaf75300050196331448289d670bf84939ac42ccda",
+    "url": "https://zachcodes.vercel.app/cv/resume.pdf"
+  }
+}

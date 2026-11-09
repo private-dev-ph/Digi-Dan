@@ -5,27 +5,96 @@ import argparse
 import json
 import os
 import re
-import sys
 import tempfile
 import uuid
 from pathlib import Path
 
 from api.core.config import Settings
 from api.knowledge.cloud import _create_cloud_stores, cloud_configuration, create_cloud_stores
+from api.knowledge import resume_source
 from api.knowledge.deployed_source import DeployedSourceVerifier
 from api.knowledge.ports import VersioningError
 from api.tools import knowledge_production as production
-from api.tools.assemble_knowledge import REPO_ROOT, _previous, build_candidate
+from api.tools.assemble_knowledge import REPO_ROOT, _previous, _read_json, build_candidate
 from api.tools.knowledge_production_preflight import FIELDS, load_production_settings, preflight
-from api.tools.prepare_resume import prepare_resume
+from api.tools.prepare_resume import (PIPELINE_VERSION, _validate_snapshot_obj,
+                                     prepare_resume)
 from api.knowledge.versioning import _validate
 
 DEFAULT_PROBES = REPO_ROOT / "knowledge" / "production-retrieval-probes.json"
 _SAFE = re.compile(r"\A[a-z][a-z0-9_]{0,63}\Z")
 _RUN_ID = re.compile(r"\A[A-Za-z0-9][A-Za-z0-9._:-]{0,99}\Z")
 _REVIEW = {"resume_review_required", "portfolio_review_required", "candidate_review_required",
-           "retrieval_probe_review_required"}
+           "retrieval_probe_review_required", "reviewed_resume_invalid"}
 _SUPERSEDED = {"generation_conflict", "superseded", "stale_job"}
+_REVIEWED_RESUME = REPO_ROOT / "knowledge" / "reviewed-resume.json"
+_SOURCE_POLICY = REPO_ROOT / "knowledge" / "source-policy.json"
+_MAX_REVIEWED_RESUME_BYTES = 256 * 1024
+
+
+def _strict_json(raw: bytes):
+    def unique(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("duplicate JSON key")
+            result[key] = value
+        return result
+
+    def reject_constant(_value):
+        raise ValueError("non-finite JSON number")
+
+    return json.loads(raw.decode("utf-8"), object_pairs_hook=unique, parse_constant=reject_constant)
+
+
+def _seed_reviewed_resume(state_dir: Path, site_url: str, *,
+                          reviewed_path: Path = _REVIEWED_RESUME,
+                          policy_path: Path = _SOURCE_POLICY) -> Path:
+    """Seed only an absent local cache from the reviewed extraction artifact."""
+    state_dir = Path(state_dir)
+    destination = state_dir / "last-successful.json"
+    if destination.exists() or destination.is_symlink():
+        return destination
+    try:
+        with Path(reviewed_path).open("rb") as stream:
+            raw = stream.read(_MAX_REVIEWED_RESUME_BYTES + 1)
+        if len(raw) > _MAX_REVIEWED_RESUME_BYTES:
+            raise ValueError("reviewed snapshot exceeds size limit")
+        snapshot = _strict_json(raw)
+        _validate_snapshot_obj(snapshot)
+        policy = _read_json(Path(policy_path))
+        expected_hash = policy.get("resume_content_hash")
+        if (snapshot.get("pipeline_version") != PIPELINE_VERSION
+                or not isinstance(expected_hash, str)
+                or snapshot.get("content_hash") != expected_hash):
+            raise ValueError("reviewed snapshot does not match source policy")
+        resume_source.validate_url(site_url)
+        source_url = snapshot["source"]["url"]
+        resume_source.validate_url(source_url)
+        if resume_source.origin(source_url) != resume_source.origin(site_url):
+            raise ValueError("reviewed snapshot source origin mismatch")
+
+        state_dir.mkdir(parents=True, exist_ok=True)
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile("wb", dir=state_dir, prefix=".reviewed-resume.",
+                                             suffix=".tmp", delete=False) as stream:
+                temporary = Path(stream.name)
+                stream.write(raw)
+                stream.flush()
+                os.fsync(stream.fileno())
+            try:
+                # Same-directory hard-link is atomic and does not replace a
+                # concurrently created local snapshot.
+                os.link(temporary, destination)
+            except FileExistsError:
+                pass
+        finally:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
+    except Exception:
+        raise VersioningError("reviewed_resume_invalid") from None
+    return destination
 
 
 def _settings(env_file: Path | None):
@@ -63,6 +132,7 @@ def _candidate(site_url: str, state: Path, tesseract_cmd: str = "tesseract"):
     resume_dir = state / "resume"
     resume_path = resume_dir / "last-successful.json"
     manifest = site_url.rstrip("/") + "/api/knowledge"
+    _seed_reviewed_resume(resume_dir, site_url)
     prepare_resume(state_dir=resume_dir, manifest_url=manifest, tesseract_cmd=tesseract_cmd)
     candidate_dir = state / "candidate"
     build_candidate(output_dir=candidate_dir, site_url=site_url, resume_path=resume_path,
