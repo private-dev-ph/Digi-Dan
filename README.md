@@ -209,6 +209,7 @@ Proxy browser requests through the portfolio backend and attach `X-API-Secret` o
 
 - [Documentation home](docs/index.md)
 - [Architecture and trust boundaries](docs/architecture.md)
+- [Production knowledge synchronization](docs/knowledge-sync.md)
 - [Knowledge-base example](daniel-zachary-rag-data.json)
 - [Portfolio showcase metadata](portfolio-showcase.json)
 

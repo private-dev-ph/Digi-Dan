@@ -1,0 +1,109 @@
+name: Sync production knowledge
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Check production knowledge or synchronize it
+        type: choice
+        options: [check, sync]
+        default: check
+        required: true
+      reason:
+        description: Why this run was started
+        type: choice
+        options: [manual, deployment]
+        default: manual
+        required: true
+  schedule:
+    - cron: '17 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'knowledge/**'
+      - 'daniel-zachary-rag-data.json'
+      - 'api/knowledge/**'
+      - 'api/tools/knowledge_sync.py'
+      - 'api/tools/assemble_knowledge.py'
+      - 'api/tools/prepare_resume.py'
+      - '.github/workflows/sync-knowledge.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: knowledge-production-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: ${{ github.ref == 'refs/heads/main' && (vars.KNOWLEDGE_SYNC_ENABLED == 'true' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'check')) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      KNOWLEDGE_ENVIRONMENT: production
+      KNOWLEDGE_MODE: versioned
+      KNOWLEDGE_SYNC_ENABLED: ${{ vars.KNOWLEDGE_SYNC_ENABLED }}
+      PORTFOLIO_PUBLIC_URL: ${{ vars.PORTFOLIO_PUBLIC_URL || 'https://zachcodes.vercel.app' }}
+      GEMINI_EMBEDDING_MODEL: ${{ vars.GEMINI_EMBEDDING_MODEL || 'gemini-embedding-001' }}
+      EMBEDDING_DIMENSIONS: ${{ vars.EMBEDDING_DIMENSIONS || '768' }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      UPSTASH_VECTOR_REST_URL: ${{ secrets.UPSTASH_VECTOR_REST_URL }}
+      UPSTASH_VECTOR_REST_TOKEN: ${{ secrets.UPSTASH_VECTOR_REST_TOKEN }}
+      UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+      UPSTASH_REDIS_REST_READ_ONLY_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_READ_ONLY_TOKEN }}
+    steps:
+      - name: Decide whether synchronization is enabled
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_MODE: ${{ inputs.mode }}
+        run: |
+          if [ "$KNOWLEDGE_SYNC_ENABLED" != "true" ]; then
+            if [ "$EVENT_NAME" != "workflow_dispatch" ] || [ "$INPUT_MODE" != "check" ]; then
+              echo "Production knowledge sync is disabled; only a manual check may run."
+              exit 1
+            fi
+          fi
+
+      - name: Check out trusted main code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install system OCR dependency
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr tesseract-ocr-eng
+
+      - name: Install Python dependencies
+        run: python -m pip install -r requirements.txt -r requirements-resume.txt
+
+      - name: Run production knowledge command
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_REASON: ${{ inputs.reason }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          mode="${INPUT_MODE:-sync}"
+          trigger="$EVENT_NAME"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            trigger="${INPUT_REASON:-manual}"
+          fi
+          python -m api.tools.knowledge_sync --mode "$mode" --site-url "$PORTFOLIO_PUBLIC_URL" --state-dir "$RUNNER_TEMP/knowledge-sync" --trigger "$trigger" --run-id "$RUN_ID-$RUN_ATTEMPT"
+
+      - name: Upload safe synchronization report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: knowledge-sync-report
+          path: ${{ runner.temp }}/knowledge-sync/report.json
+          if-no-files-found: ignore
+          retention-days: 14
