@@ -19,11 +19,11 @@ flowchart LR
 
 ## Request path
 
-1. A caller sends a message to `POST /api/chat`, optionally selecting a generation provider, result count, and Upstash namespace.
-2. The service applies origin rules and per-client rate limiting.
-3. Gemini embeds the message. Upstash Vector returns the relevant chunks for that embedding.
-4. Digi-Dan builds a grounded prompt from those chunks and calls Gemini or DeepSeek for generation.
-5. The API returns the answer, the provider used, and source records containing chunk identifiers, scores, text, and metadata.
+1. A caller sends a message to `POST /api/chat`, optionally selecting a generation provider, result count, and bounded prior conversation. Public namespace and system-prompt overrides are rejected.
+2. The service applies origin rules, validates the request, and authenticates client identity before charging one allowance. In shared mode the portfolio sends an opaque HMAC identity with its server secret, and an atomic Redis operation coordinates all backend instances. An allowed Origin alone cannot bypass trusted identity. Limiter failure returns 503 before retrieval; exhaustion returns 429 with Retry-After. See [shared rate limiting](shared-rate-limiting.md) for compatibility modes and cutover.
+3. For recognized follow-ups, Digi-Dan augments the retrieval question with bounded recent subject hints. Gemini embeds the resulting query. Upstash Vector returns current relevant chunks; the active knowledge version is resolved once per request.
+4. Digi-Dan builds a grounded prompt with retrieved chunks, separately labelled untrusted conversation history and the current question. Automatic requests try the configured default generation provider, then the other provider once only after an eligible failure. Both attempts receive the same assembled prompt and captured evidence. Explicit provider selection disables fallback. History is not an authoritative fact source. The portfolio sends only one backend request.
+5. The API returns the answer, provider, and only complete nonblank source chunks admitted to the generation context. The context budget counts IDs, text, and separators; chunks that do not fit are skipped while later chunks are still considered. Returned source text is the normalized text supplied to generation. These records identify supplied evidence; they do not prove that each answer claim is supported or cited.
 
 Even when DeepSeek is selected for generation, Gemini remains necessary for the embedding path.
 
@@ -35,13 +35,15 @@ Even when DeepSeek is selected for generation, Gemini remains necessary for the 
 | `api/endpoint/application.py` | Defines the root, health, chat, and ingest routes; registers CORS and origin middleware. |
 | `api/query/rag.py` | Coordinates retrieval, prompt assembly, answer creation, and ingestion. |
 | `api/query/providers.py` | Calls Gemini embeddings plus Gemini or DeepSeek generation. |
+| `api/query/generation.py` | Owns generation fallback, shared deadline, safe failure diagnostics and public errors. |
 | `api/tools/vector_store.py` | Queries and upserts data in Upstash Vector. |
 | `api/tools/security.py` | Applies origin/bypass handling, admin-token checks, and chat rate limiting. |
+| `api/tools/rate_limit.py` | Owns atomic Redis allowance decisions and isolated local memory counters. |
 | `api/tools/upload_vectorstore.py` | Loads JSON, JSONL, or text files for vector ingestion. |
 
 ## Trust boundaries
 
-- Browser traffic is allowed only from configured origins. Do not add permissive production origins without considering who can invoke the chat API.
+- Origin rules are not authentication. In `trusted_proxy` mode chat requires the server secret and validated client ID even for an allowed Origin.
 - `X-API-Secret` is a trusted server or terminal bypass. It must never be sent from browser JavaScript.
 - `POST /api/ingest` requires `Authorization: Bearer BOT_ADMIN_TOKEN`; treat it as an administrative operation.
 - Gemini, DeepSeek, and Upstash credentials stay in local, deployment, and automation environment variables rather than the repository.

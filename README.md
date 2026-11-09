@@ -125,14 +125,18 @@ Health check for local, Vercel, or uptime monitoring. Protected by the same orig
 
 ```json
 {
-  "message": "Where did Daniel get his college education?",
-  "provider": "gemini",
+  "message": "What technologies did that project use?",
   "top_k": 4,
-  "namespace": "digi-dan-rag"
+  "history": [
+    { "role": "user", "content": "Tell me about the Wistron AOI system." },
+    { "role": "assistant", "content": "Daniel worked on the Wistron AOI system." }
+  ]
 }
 ```
 
-`message` is required. `provider` is `gemini` or `deepseek` and defaults to `DEFAULT_PROVIDER`; `system`, `top_k`, and `namespace` are optional.
+`message` is required, nonblank, and limited to 2,000 Unicode characters. Omit `provider` (or use `null`) for automatic generation starting with `DEFAULT_PROVIDER`; an eligible temporary failure can use the other provider once. Explicit `provider: "gemini"` or `"deepseek"` pins the request to that provider without fallback. `top_k` is optional. Public callers cannot override the system prompt or select a namespace. See [provider fallback](docs/provider-fallback.md) for failure handling and deadlines.
+
+`history` is optional and defaults to an empty list. It contains prior completed user/assistant pairs, oldest first: at most eight messages, 2,000 Unicode characters per message and 8,000 characters in total. Each item contains only `role` and `content`. Invalid roles, incomplete pairs, blank content and oversized histories are rejected. History helps interpret follow-ups; it is not verified evidence about Daniel. Each question still retrieves current knowledge. See [conversation continuity](docs/conversation-continuity.md) for the browser lifecycle, limits and local validation.
 
 ```json
 {
@@ -163,7 +167,11 @@ Upload documents into Upstash Vector through the API. It requires `Authorization
 | `UPSTASH_VECTOR_REST_URL`, `UPSTASH_VECTOR_REST_TOKEN`, `UPSTASH_NAMESPACE` | Vector connection and namespace. |
 | `BOT_ADMIN_TOKEN` | Ingest-route Bearer token. |
 | `DEFAULT_PROVIDER`, `RETRIEVAL_TOP_K`, `MAX_CONTEXT_CHARS` | Generation and retrieval defaults. |
-| `CHAT_RATE_LIMIT`, `CHAT_RATE_LIMIT_WINDOW_SECONDS` | Per-client chat limiting; use `0` to disable the limit. |
+| `GENERATION_FALLBACK_ENABLED` | Allow the other generation provider after an eligible failure on an automatic request; default `true`. |
+| `GENERATION_TIMEOUT_SECONDS`, `GENERATION_TOTAL_TIMEOUT_SECONDS` | Per-attempt and shared generation deadlines in seconds; default `20` and `40`. Retrieval time is separate. |
+| `CHAT_RATE_LIMIT`, `CHAT_RATE_LIMIT_WINDOW_SECONDS` | Per-client fixed-window chat allowance; defaults 10 and 3600. Zero is allowed only with memory mode. |
+| `CHAT_RATE_LIMIT_BACKEND`, `CHAT_CLIENT_IDENTITY_MODE` | Transitional defaults `memory`/`legacy`; shared production enforcement uses `redis`/`trusted_proxy`. |
+| `RATE_LIMIT_REDIS_REST_URL`, `RATE_LIMIT_REDIS_REST_TOKEN`, `RATE_LIMIT_REDIS_TIMEOUT_SECONDS` | Separate restricted limiter connection; two-second timeout by default. See [shared rate limiting](docs/shared-rate-limiting.md). |
 
 ## Operations
 
@@ -187,7 +195,7 @@ The root `app.py` exposes the ASGI app. Use Vercel's **FastAPI** preset, reposit
 
 ### Using it from a portfolio
 
-Proxy browser requests through the portfolio backend and attach `X-API-Secret` only there. Browser code should call the portfolio route, not send that secret. Direct browser calls are appropriate only if the site domain is configured in both origin settings.
+Proxy browser requests through the portfolio backend and attach `X-API-Secret` only there. Browser code should call the portfolio route, not send that secret. With `trusted_proxy` identity enabled, chat also requires the server-derived `X-DigiDan-Client-Id`; an allowed Origin alone cannot authorize chat. See [shared rate limiting](docs/shared-rate-limiting.md) for configuration and rollout.
 
 ### Using this as a template
 
@@ -209,6 +217,7 @@ Proxy browser requests through the portfolio backend and attach `X-API-Secret` o
 
 - [Documentation home](docs/index.md)
 - [Architecture and trust boundaries](docs/architecture.md)
+- [Shared rate limiting and trusted client identity](docs/shared-rate-limiting.md)
 - [Production knowledge synchronization](docs/knowledge-sync.md)
 - [Knowledge-base example](daniel-zachary-rag-data.json)
 - [Portfolio showcase metadata](portfolio-showcase.json)
