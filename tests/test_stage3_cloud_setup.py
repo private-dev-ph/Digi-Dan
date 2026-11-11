@@ -28,8 +28,10 @@ class CloudSetupTests(unittest.TestCase):
                 patch.object(cloud, 'GeminiEmbedder') as embedder:
             cloud.create_cloud_service(settings(), writable=False)
             self.assertEqual(embedder.call_args.kwargs['max_attempts'], 1)
+            self.assertFalse(embedder.call_args.kwargs['background'])
             cloud.create_cloud_service(settings(), writable=True)
             self.assertEqual(embedder.call_args.kwargs['max_attempts'], 3)
+            self.assertTrue(embedder.call_args.kwargs['background'])
 
     def test_offline_configuration_never_constructs_clients(self):
         with patch.object(cloud, 'Index', side_effect=AssertionError('client created')):

@@ -133,7 +133,7 @@ class CloudEmbeddingTests(unittest.TestCase):
         result = GeminiEmbedder(client=SimpleNamespace(models=models), max_attempts=2,
                                 sleep=sleeps.append).embed(["batch"], gemini_profile())
         self.assertEqual(result[0][0], 1.0)
-        self.assertEqual(sleeps, [1.25])
+        self.assertEqual(sleeps, [2.25])
         self.assertEqual(models.calls[0], models.calls[1])
 
     def test_sdk_nested_error_details_retry_info_shape(self):
@@ -144,14 +144,14 @@ class CloudEmbeddingTests(unittest.TestCase):
         sleeps = []
         GeminiEmbedder(client=SimpleNamespace(models=models), max_attempts=2,
                        sleep=sleeps.append).embed(["x"], gemini_profile())
-        self.assertEqual(sleeps, [0.75])
+        self.assertEqual(sleeps, [1.75])
         self.assertEqual(len(models.calls), 2)
 
     def test_429_delay_header_fallback_and_bounds(self):
-        cases = [({"Retry-After": "2.5"}, None, [2.5, 2.5]), ({}, None, [60.0, 60.0]),
+        cases = [({"Retry-After": "2.5"}, None, [3.5, 3.5]), ({}, None, [61.0, 61.0]),
                  ({"Retry-After": "61"}, None, None),
                  ({}, [{"@type": "type.googleapis.com/google.rpc.RetryInfo",
-                       "retryDelay": "bad"}], [60.0, 60.0])]
+                       "retryDelay": "bad"}], [61.0, 61.0])]
         for headers, details, expected_sleep in cases:
             with self.subTest(headers=headers, details=details):
                 error = ProviderError(429, headers=headers, details=details)

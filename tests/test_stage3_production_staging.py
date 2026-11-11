@@ -153,6 +153,7 @@ class ProductionStagingTests(unittest.TestCase):
         self.assertTrue(registry_ctor.call_args.kwargs['writable'])
         self.assertTrue(vector_ctor.call_args.kwargs['writable'])
         self.assertEqual(stager._service.embedder._max_attempts, 3)
+        self.assertTrue(stager._service.embedder._background)
         self.assertEqual(stager._service.poll_attempts, 12)
         self.assertEqual(stager._service.poll_interval, 1.0)
         with self.assertRaises(VersioningError):

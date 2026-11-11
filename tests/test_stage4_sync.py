@@ -30,7 +30,7 @@ class Stage4SyncTests(unittest.TestCase):
             patch.object(sync, "_journal", return_value=self.journal),
             patch.object(sync, "_candidate", return_value=(Path("candidate"), Path("resume"), self.candidate, [])),
             patch.object(sync.production, "status", side_effect=lambda _: dict(self.status)),
-            patch.object(sync.production, "stage", return_value={"status": "staged", "ticket": "a" * 16, "chunk_count": 1}),
+            patch.object(sync.production, "stage", return_value={"status": "staged", "ticket": "a" * 16, "chunk_count": 139, "embedded_chunk_count": 9, "reused_chunk_count": 130}),
             patch.object(sync.production, "activate", return_value={"activation_performed": True}),
             patch.object(sync.production, "verify", return_value={"version_id": "c" * 64}),
         ]
@@ -44,6 +44,7 @@ class Stage4SyncTests(unittest.TestCase):
             result = sync.run("sync", "https://example.test", Path("state"), None, "manual", "run-1")
         self.assertEqual(result["status"], "updated")
         self.assertTrue(result["activation_performed"])
+        self.assertEqual(result["counts"], {"processed": 139, "updated": 9, "unchanged": 130})
         mocks[4].assert_called_once()
         self.assertEqual(mocks[4].call_args.kwargs["expected_generation"], 4)
         mocks[5].assert_called_once()
@@ -69,6 +70,7 @@ class Stage4SyncTests(unittest.TestCase):
         with patch.dict("os.environ", {"KNOWLEDGE_SYNC_ENABLED": "true"}):
             result = sync.run("sync", "https://example.test", Path("state"), None, "manual", "run-1")
         self.assertEqual(result["status"], "unchanged")
+        self.assertEqual(result["counts"], {"processed": 1, "updated": 0, "unchanged": 0})
         mocks[5].assert_not_called()
         mocks[6].assert_called_once()
 

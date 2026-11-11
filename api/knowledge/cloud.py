@@ -77,7 +77,7 @@ def create_cloud_stores(settings, *, writable=False):
 def create_cloud_service(settings, *, writable=False):
     registry, vectors = create_cloud_stores(settings, writable=writable)
     return KnowledgeService(registry, vectors, GeminiEmbedder(settings.gemini_api_key,
-                            max_attempts=3 if writable else 1),
+                            max_attempts=3 if writable else 1, background=writable),
                             poll_attempts=12, poll_interval=1.0)
 
 

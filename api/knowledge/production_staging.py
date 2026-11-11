@@ -62,7 +62,7 @@ def create_production_stager(settings, *, site_url):
     registry, vectors = _create_cloud_stores(settings, writable=True,
                                              production_staging=True)
     service = KnowledgeService(registry, vectors,
-                               GeminiEmbedder(settings.gemini_api_key, max_attempts=3),
+                               GeminiEmbedder(settings.gemini_api_key, max_attempts=3, background=True),
                                poll_attempts=12, poll_interval=1.0)
     return ProductionStager(service, config["embedding_profile"],
                             verifier)

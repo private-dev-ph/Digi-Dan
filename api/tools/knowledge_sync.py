@@ -167,7 +167,7 @@ def _summary(report):
     path = os.environ.get("GITHUB_STEP_SUMMARY")
     if not path:
         return
-    fields = ("status", "error_code", "ticket", "version_id", "candidate_hash", "chunk_count",
+    fields = ("status", "error_code", "ticket", "version_id", "candidate_hash", "chunk_count", "counts",
               "activation_performed", "activation_attempted", "activation_uncertain", "post_activation_failure")
     safe = {k: report.get(k) for k in fields if k in report}
     with open(path, "a", encoding="utf-8") as stream:
@@ -242,7 +242,9 @@ def run(mode: str, site_url: str, state_dir: Path, env_file: Path | None,
             verified = production.verify(runtime, ticket=ticket, site_url=site_url)
             report = {"status": "unchanged", "ticket": ticket, "version_id": verified.get("version_id"),
                       "candidate_hash": candidate_hash,
-                      "counts": {"processed": staged.get("chunk_count", 0)}, "activation_performed": False}
+                      "counts": {"processed": staged.get("chunk_count", 0),
+                                 "updated": staged.get("embedded_chunk_count", 0),
+                                 "unchanged": staged.get("reused_chunk_count", 0)}, "activation_performed": False}
         elif staged.get("status") == "staged":
             staged_status = _status(runtime)
             if staged_status.get("generation") != expected + 1:
@@ -256,7 +258,9 @@ def run(mode: str, site_url: str, state_dir: Path, env_file: Path | None,
             verified = production.verify(runtime, ticket=ticket, site_url=site_url)
             report = {"status": "updated", "ticket": ticket, "version_id": verified.get("version_id"),
                       "candidate_hash": candidate_hash,
-                      "counts": {"processed": staged.get("chunk_count", 0)}, "activation_performed": activation}
+                      "counts": {"processed": staged.get("chunk_count", 0),
+                                 "updated": staged.get("embedded_chunk_count", 0),
+                                 "unchanged": staged.get("reused_chunk_count", 0)}, "activation_performed": activation}
         else:
             raise VersioningError("stage_not_created")
         if not journal.finish(attempt, report):

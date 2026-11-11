@@ -146,12 +146,19 @@ class KnowledgeService:
         ticket = state.get("active")
         rec = state.get("versions", {}).get(ticket) if ticket else None
         if rec and rec.get("status") == "verified" and rec.get("candidate_hash") == candidate_hash and rec.get("embedding") == embedding:
-            try:
-                self._validate_storage(rec)
-                return copy.deepcopy(rec)
-            except VersioningError:
-                return None
+            self._validate_storage(rec)
+            return copy.deepcopy(rec)
         return None
+
+    def _active_reuse_rows(self, embedding):
+        _, state = self._read()
+        ticket = state.get("active")
+        rec = state.get("versions", {}).get(ticket) if ticket else None
+        if not rec or rec.get("status") != "verified" or rec.get("embedding") != embedding:
+            return {}
+        # A compatible active namespace is an all-or-nothing reuse source.
+        # Validate every record and vector before considering any row.
+        return {row["id"]: row for row in self._validate_storage(rec)}
 
     def sync(self, candidate, profile, *, expected_generation, verify_source, probes, activate=True):
         chunks, candidate_hash, version_id = _validate(candidate, profile, probes)
@@ -179,6 +186,15 @@ class KnowledgeService:
                 s["last_attempt"] = {"status": "unchanged", "ticket": prior["ticket"], "source": source, "at": self.clock()}
             self._update(noop)
             return self._result("unchanged", prior)
+        reusable = self._active_reuse_rows(profile)
+        reuse_by_id = {chunk["id"]: reusable[chunk["id"]] for chunk in chunks
+                       if chunk["id"] in reusable
+                       and _hash({"id": reusable[chunk["id"]].get("id"),
+                                  "text": reusable[chunk["id"]].get("text"),
+                                  "metadata": reusable[chunk["id"]].get("metadata")}) == chunk["content_hash"]}
+        embedded_chunks = [chunk for chunk in chunks if chunk["id"] not in reuse_by_id]
+        reused_count = len(reuse_by_id)
+        embedded_count = len(embedded_chunks)
         namespace = "{}{}-{}".format(MANAGED_NAMESPACE_PREFIX, version_id[:12], ticket)
         record = {"ticket": ticket, "version_id": version_id, "namespace": namespace, "candidate_hash": candidate_hash,
                   "embedding": copy.deepcopy(profile), "source": source, "expected_ids": [c["id"] for c in chunks],
@@ -195,8 +211,10 @@ class KnowledgeService:
         self._update(add)
         try:
             self._verify_source(verify_source, record)
-            for offset in range(0, len(chunks), self.batch_size):
-                batch = chunks[offset:offset + self.batch_size]
+            rows_by_id = {chunk["id"]: {**copy.deepcopy(chunk), "vector": list(reuse_by_id[chunk["id"]]["vector"])}
+                          for chunk in chunks if chunk["id"] in reuse_by_id}
+            for offset in range(0, len(embedded_chunks), self.batch_size):
+                batch = embedded_chunks[offset:offset + self.batch_size]
                 vectors = self.embedder.embed([c["text"] for c in batch], profile)
                 if not isinstance(vectors, list) or len(vectors) != len(batch):
                     _fail("invalid_vectors")
@@ -204,7 +222,10 @@ class KnowledgeService:
                 for chunk, vector in zip(batch, vectors):
                     self._check_vector(vector, profile["dimensions"])
                     rows.append({**copy.deepcopy(chunk), "vector": list(vector)})
-                self.vectors.put(namespace, rows)
+                rows_by_id.update({row["id"]: row for row in rows})
+            target_rows = [rows_by_id[chunk["id"]] for chunk in chunks]
+            for offset in range(0, len(target_rows), self.batch_size):
+                self.vectors.put(namespace, target_rows[offset:offset + self.batch_size])
             self._check_desired(ticket)
             self._wait_ready(namespace, len(chunks))
             self._validate_storage(record, chunks)
@@ -216,10 +237,12 @@ class KnowledgeService:
             ok, _ = self._set_record(ticket, verified, desired=ticket)
             if not ok:
                 self._fail_record(ticket, "superseded")
-                return self._result("superseded", record)
+                return self._result("superseded", record, reused_count, embedded_count)
             if not activate:
-                return self._result("staged", self._record(ticket))
-            return self.activate(ticket, verify_source=verify_source)
+                return self._result("staged", self._record(ticket), reused_count, embedded_count)
+            result = self.activate(ticket, verify_source=verify_source)
+            result.update(reused_chunk_count=reused_count, embedded_chunk_count=embedded_count)
+            return result
         except Exception as exc:
             code = getattr(exc, "code", "build_failed")
             self._fail_record(ticket, code)
@@ -278,6 +301,7 @@ class KnowledgeService:
                 _fail("vector_contents_mismatch")
         for row in rows:
             self._check_vector(row.get("vector"), rec["embedding"]["dimensions"])
+        return copy.deepcopy(rows)
 
     def _run_probes(self, rec, probes=None):
         selected = probes if probes is not None else rec.get("probes")
@@ -448,5 +472,6 @@ class KnowledgeService:
         return deleted
 
     @staticmethod
-    def _result(status, rec):
-        return {"status": status, "ticket": rec["ticket"], "version_id": rec["version_id"], "namespace": rec["namespace"]}
+    def _result(status, rec, reused_chunk_count=0, embedded_chunk_count=0):
+        return {"status": status, "ticket": rec["ticket"], "version_id": rec["version_id"], "namespace": rec["namespace"],
+                "reused_chunk_count": reused_chunk_count, "embedded_chunk_count": embedded_chunk_count}

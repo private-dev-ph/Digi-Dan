@@ -34,6 +34,25 @@ def candidate(text="Alpha project facts.", provenance=None):
             }}
 
 
+def make_chunk(chunk_id, text, *, title=None):
+    metadata = {"title": title or chunk_id.title(), "section": "projects", "entity_id": chunk_id,
+                "owner": "portfolio", "source_url": f"https://example.test/{chunk_id}",
+                "parent_id": chunk_id, "chunk_index": 1, "chunk_count": 1}
+    row = {"id": chunk_id, "text": text, "metadata": metadata}
+    row["content_hash"] = canonical_hash(row)
+    return row
+
+
+def candidate_with_chunks(*rows):
+    result = candidate()
+    rows = sorted((copy.deepcopy(row) for row in rows), key=lambda row: row["id"])
+    result["chunks"] = rows
+    result["content_hash"] = canonical_hash([
+        {"id": row["id"], "text": row["text"], "metadata": row["metadata"]} for row in rows
+    ])
+    return result
+
+
 class Registry:
     def __init__(self):
         self.revision, self.state = 0, initial_state()
@@ -60,7 +79,10 @@ class Vectors:
         return {"ready": len(self.data.get(namespace, {})), "pending": 0}
 
     def scan(self, namespace):
-        return list(copy.deepcopy(self.data.get(namespace, {})).values())
+        rows = list(copy.deepcopy(self.data.get(namespace, {})).values())
+        for row in rows:
+            row.pop("content_hash", None)
+        return rows
 
     def query(self, namespace, vector, top_k):
         self.queries += 1
@@ -99,12 +121,145 @@ class Stage3VersioningTests(unittest.TestCase):
         return self.service.sync(cand or candidate(), PROFILE, expected_generation=self.registry.state["generation"],
                                  verify_source=self.verify, probes=PROBES, **kw)
 
+    def test_changed_sync_reuses_only_exact_active_rows(self):
+        first_candidate = candidate()
+        alpha = copy.deepcopy(first_candidate["chunks"][0])
+        beta = copy.deepcopy(alpha)
+        beta.update(id="beta", text="Beta project facts.")
+        beta["metadata"].update(title="Beta", entity_id="beta", parent_id="beta")
+        beta["content_hash"] = canonical_hash({"id": beta["id"], "text": beta["text"], "metadata": beta["metadata"]})
+        first_candidate["chunks"] = [alpha, beta]
+        first_candidate["content_hash"] = canonical_hash([
+            {"id": row["id"], "text": row["text"], "metadata": row["metadata"]}
+            for row in sorted(first_candidate["chunks"], key=lambda row: row["id"])
+        ])
+        first = self.sync(first_candidate)
+        original_rows = self.vectors.scan(first["namespace"])
+
+        updated = candidate()
+        gamma = copy.deepcopy(updated["chunks"][0])
+        gamma.update(id="gamma", text="Gamma project facts.")
+        gamma["metadata"].update(title="Gamma", entity_id="gamma", parent_id="gamma")
+        gamma["content_hash"] = canonical_hash({"id": gamma["id"], "text": gamma["text"], "metadata": gamma["metadata"]})
+        updated["chunks"] = [updated["chunks"][0], gamma]
+        updated["content_hash"] = canonical_hash([
+            {"id": row["id"], "text": row["text"], "metadata": row["metadata"]}
+            for row in sorted(updated["chunks"], key=lambda row: row["id"])
+        ])
+        embedded_calls = []
+        class CountingEmbedder:
+            def embed(inner_self, texts, profile):
+                embedded_calls.extend(texts)
+                return [[1.0, 2.0, 3.0] for _ in texts]
+        self.service.embedder = CountingEmbedder()
+        result = self.sync(updated)
+        self.assertEqual((result["reused_chunk_count"], result["embedded_chunk_count"]), (1, 1))
+        self.assertEqual(embedded_calls.count("Alpha project facts."), 0)
+        self.assertEqual({r["id"] for r in self.vectors.scan(result["namespace"])}, {"alpha", "gamma"})
+        self.assertEqual(self.vectors.scan(first["namespace"]), original_rows)
+
+    def test_corrupt_compatible_active_namespace_fails_closed(self):
+        first = self.sync()
+        self.vectors.data[first["namespace"]]["alpha"]["vector"] = [0.0, 0.0, 0.0]
+        changed = candidate("Changed facts.")
+        with self.assertRaises(VersioningError) as caught:
+            self.sync(changed)
+        self.assertEqual(caught.exception.code, "invalid_vectors")
+        self.assertEqual(self.service.get_active()["ticket"], first["ticket"])
+
+    def test_metadata_only_change_does_not_reuse_embedding(self):
+        self.sync()
+        updated_row = make_chunk("alpha", "Alpha project facts.", title="Updated Alpha")
+        updated = candidate_with_chunks(updated_row)
+        calls = []
+        class CountingEmbedder:
+            def embed(inner_self, texts, profile):
+                calls.extend(texts)
+                return [[1.0, 2.0, 3.0] for _ in texts]
+        self.service.embedder = CountingEmbedder()
+        result = self.sync(updated)
+        self.assertEqual((result["reused_chunk_count"], result["embedded_chunk_count"]), (0, 1))
+        self.assertIn("Alpha project facts.", calls)
+
+    def test_profile_mismatch_embeds_all_candidate_chunks(self):
+        self.sync()
+        calls = []
+        class CountingEmbedder:
+            def embed(inner_self, texts, profile):
+                calls.append((tuple(texts), copy.deepcopy(profile)))
+                return [[1.0, 2.0, 3.0] for _ in texts]
+        self.service.embedder = CountingEmbedder()
+        candidate2 = candidate_with_chunks(make_chunk("alpha", "Alpha project facts."),
+                                           make_chunk("beta", "Beta project facts."))
+        profile = {**PROFILE, "model": "different"}
+        result = self.service.sync(candidate2, profile, expected_generation=self.registry.state["generation"],
+                                   verify_source=self.verify, probes=PROBES)
+        self.assertEqual((result["reused_chunk_count"], result["embedded_chunk_count"]), (0, 2))
+        self.assertTrue(any(set(texts) == {"Alpha project facts.", "Beta project facts."} and p == profile
+                            for texts, p in calls))
+
+    def test_nonactive_staged_namespace_is_never_a_reuse_source(self):
+        self.sync()
+        staged_candidate = candidate_with_chunks(make_chunk("beta", "Beta project facts."))
+        staged = self.service.sync(staged_candidate, PROFILE, expected_generation=self.registry.state["generation"],
+                                  verify_source=self.verify,
+                                  probes=[{"question": "beta project", "expected_ids": ["beta"], "top_k": 1}],
+                                  activate=False)
+        self.assertEqual(staged["status"], "staged")
+        original_query = self.vectors.query
+        self.vectors.query = lambda namespace, vector, top_k: []
+        try:
+            with self.assertRaises(VersioningError) as caught:
+                self.service.sync(staged_candidate, PROFILE,
+                                 expected_generation=self.registry.state["generation"],
+                                 verify_source=self.verify,
+                                 probes=[{"question": "beta project", "expected_ids": ["beta"], "top_k": 1}])
+            self.assertEqual(caught.exception.code, "probe_failed")
+        finally:
+            self.vectors.query = original_query
+        self.assertEqual(self.registry.state["versions"][self.registry.state["last_attempt"]["ticket"]]["status"], "failed")
+        calls = []
+        class CountingEmbedder:
+            def embed(inner_self, texts, profile):
+                calls.extend(texts)
+                return [[1.0, 2.0, 3.0] for _ in texts]
+        self.service.embedder = CountingEmbedder()
+        combined = candidate_with_chunks(make_chunk("alpha", "Alpha project facts."),
+                                         make_chunk("beta", "Beta project facts."))
+        result = self.sync(combined)
+        self.assertEqual((result["reused_chunk_count"], result["embedded_chunk_count"]), (1, 1))
+        self.assertIn("Beta project facts.", calls)
+
+    def test_corrupt_active_text_fails_before_provider_or_target_put(self):
+        first = self.sync()
+        self.vectors.data[first["namespace"]]["alpha"]["text"] = "corrupted stored text"
+        original_put = self.vectors.put
+        put_calls = []
+        def tracking_put(namespace, records):
+            put_calls.append((namespace, copy.deepcopy(records)))
+            original_put(namespace, records)
+        self.vectors.put = tracking_put
+        calls = []
+        class CountingEmbedder:
+            def embed(inner_self, texts, profile):
+                calls.extend(texts)
+                return [[1.0, 2.0, 3.0] for _ in texts]
+        self.service.embedder = CountingEmbedder()
+        with self.assertRaises(VersioningError) as caught:
+            self.sync(candidate("Changed facts."))
+        self.assertEqual(caught.exception.code, "vector_contents_mismatch")
+        self.assertEqual(put_calls, [])
+        self.assertEqual(calls, [])
+        self.assertEqual(self.registry.state["active"], first["ticket"])
+
     def test_build_activation_noop_and_profile_identity(self):
         first = self.sync()
         self.assertEqual(first["status"], "active")
         active = self.service.get_active()
         self.assertEqual(active["ticket"], first["ticket"])
-        self.assertEqual(self.sync()["status"], "unchanged")
+        unchanged = self.sync()
+        self.assertEqual(unchanged["status"], "unchanged")
+        self.assertEqual((unchanged["reused_chunk_count"], unchanged["embedded_chunk_count"]), (0, 0))
         profile = {**PROFILE, "model": "different"}
         second = self.service.sync(candidate(), profile, expected_generation=self.registry.state["generation"],
                                    verify_source=self.verify, probes=PROBES)

@@ -83,7 +83,7 @@ def create_production_rollout(settings, site_url):
     vectors.writable = False
     service = KnowledgeService(
         registry, vectors,
-        GeminiEmbedder(settings.gemini_api_key, max_attempts=3),
+        GeminiEmbedder(settings.gemini_api_key, max_attempts=3, background=True),
         poll_attempts=12, poll_interval=1.0,
     )
     return ProductionRollout(service, config["embedding_profile"], verifier)

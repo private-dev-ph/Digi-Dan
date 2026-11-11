@@ -12,6 +12,8 @@ Verification checks finite vectors and dimensions, bounded indexing readiness, t
 
 Only a verified build that still matches the desired intent can become active. A late job cannot reclaim that intent. A source moving during preparation or any failed build leaves the current pointer unchanged. A matching active version can be reused without re-embedding its documents. Version identity includes candidate content, the embedding provider/model/dimensions/policy, and the pipeline policy version.
 
+For a changed candidate, the coordinator validates every stored record and vector in the current verified active namespace. With an identical embedding profile, unchanged chunk IDs and hashes (covering text and metadata) reuse their vectors. New or changed chunks request embeddings. Both sets are copied into a fresh namespace and pass the same count, hash, retrieval-probe and source checks before activation. Removed chunks are omitted. Failed or inactive builds are never reuse sources; a corrupt compatible active namespace stops the build for investigation.
+
 Registry generations represent accepted operator/synchronization intent, not Git commit time. Production synchronization registers events in the intended order and rechecks source freshness; the local state machine alone does not determine which Git commit is deployed.
 
 ## Active retrieval and old ingestion
