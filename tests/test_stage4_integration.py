@@ -68,6 +68,7 @@ class CoordinatorStage4IntegrationTests(unittest.TestCase):
         self.env.start()
         self.addCleanup(self.env.stop)
 
+        self.actual_verify = knowledge_production.verify
         self.patches = [
             patch.object(knowledge_sync, "_candidate", side_effect=self._candidate),
             patch.object(knowledge_sync, "_journal", return_value=self.journal),
@@ -107,14 +108,10 @@ class CoordinatorStage4IntegrationTests(unittest.TestCase):
         self.activation_calls.append(ticket)
         return result
 
-    def _verify(self, runtime, *, ticket, site_url):
-        record = self.service.get_active()
-        if record["ticket"] != ticket:
-            raise AssertionError("verification received a non-active ticket")
-        self.service._validate_storage(record)
-        self.service._run_probes(record)
-        self.verifier.verify(record)
-        return {"ticket": ticket, "version_id": record["version_id"]}
+    def _verify(self, runtime, *, ticket, site_url, **kwargs):
+        with patch("api.knowledge.cloud.create_cloud_service", return_value=self.service), \
+             patch("api.knowledge.deployed_source.DeployedSourceVerifier", return_value=self.verifier):
+            return self.actual_verify(runtime, ticket=ticket, site_url=site_url, **kwargs)
 
     def run_sync(self, run_id):
         return knowledge_sync.run("sync", SITE, Path(self.temp.name), None, "manual", run_id)
@@ -136,7 +133,13 @@ class CoordinatorStage4IntegrationTests(unittest.TestCase):
         first = self.run_sync("integration-first")
         namespace_count = len(self.index.rows)
         activations = len(self.activation_calls)
-        result = self.run_sync("integration-same")
+        with patch.object(self.service.embedder, "embed", side_effect=AssertionError("unexpected embedding")) as embed, \
+             patch.object(self.service.vectors, "query", wraps=self.service.vectors.query) as query:
+            result = self.run_sync("integration-same")
+        embed.assert_not_called()
+        self.assertEqual(query.call_count, 2 * len(PROBES))
+        self.assertEqual(result["verification"]["stage"]["mode"], "cached")
+        self.assertEqual(result["verification"]["runtime"]["embedding_inputs"], 0)
         self.assertEqual(first["ticket"], result["ticket"])
         self.assertEqual(result["status"], "unchanged")
         self.assertEqual(len(self.index.rows), namespace_count)

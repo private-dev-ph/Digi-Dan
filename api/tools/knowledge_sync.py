@@ -167,7 +167,7 @@ def _summary(report):
     path = os.environ.get("GITHUB_STEP_SUMMARY")
     if not path:
         return
-    fields = ("status", "error_code", "ticket", "version_id", "candidate_hash", "chunk_count", "counts",
+    fields = ("status", "error_code", "ticket", "version_id", "candidate_hash", "chunk_count", "counts", "verification",
               "activation_performed", "activation_attempted", "activation_uncertain", "post_activation_failure")
     safe = {k: report.get(k) for k in fields if k in report}
     with open(path, "a", encoding="utf-8") as stream:
@@ -239,7 +239,9 @@ def run(mode: str, site_url: str, state_dir: Path, env_file: Path | None,
                                   expected_generation=expected, resume_path=resume_path, probes_path=DEFAULT_PROBES)
         if staged.get("status") == "unchanged":
             ticket = staged.get("ticket")
-            verified = production.verify(runtime, ticket=ticket, site_url=site_url)
+            verified = production.verify(runtime, ticket=ticket, site_url=site_url,
+                                         cached_probes=True, expected_version=staged.get("version_id"),
+                                         expected_probes=probes)
             report = {"status": "unchanged", "ticket": ticket, "version_id": verified.get("version_id"),
                       "candidate_hash": candidate_hash,
                       "counts": {"processed": staged.get("chunk_count", 0),
@@ -265,6 +267,9 @@ def run(mode: str, site_url: str, state_dir: Path, env_file: Path | None,
             raise VersioningError("stage_not_created")
         if not journal.finish(attempt, report):
             raise VersioningError("superseded")
+        if staged.get("status") == "unchanged":
+            report["verification"] = {"stage": staged.get("probe_verification"),
+                                      "runtime": verified.get("probe_verification")}
         return report
     except Exception as exc:
         if activation_attempted and not activation:

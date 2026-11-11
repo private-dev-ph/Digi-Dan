@@ -130,7 +130,8 @@ def rollback(worker_settings, *, ticket: str, candidate_path: Path, site_url: st
     return rollout.rollback(ticket, candidate, expected_generation=expected_generation)
 
 
-def verify(runtime_settings, *, ticket: str, site_url: str) -> dict:
+def verify(runtime_settings, *, ticket: str, site_url: str, cached_probes: bool = False,
+           expected_version: str | None = None, expected_probes: list | None = None) -> dict:
     ticket = _ticket(ticket)
     from api.knowledge.cloud import create_cloud_service
     from api.knowledge.deployed_source import DeployedSourceVerifier
@@ -138,16 +139,32 @@ def verify(runtime_settings, *, ticket: str, site_url: str) -> dict:
     record = service.get_active()
     if record.get("ticket") != ticket:
         raise VersioningError("active_ticket_mismatch")
+    if cached_probes:
+        if (expected_version != record.get("version_id") or
+                expected_probes != record.get("probes")):
+            raise VersioningError("probe_receipt_mismatch")
     service._validate_storage(record)
-    service._run_probes(record)
+    if cached_probes:
+        verification = service._run_probes(record, expected_probes, mode="cached")
+    else:
+        service._run_probes(record)
     current = service.get_active()
     if (current.get("ticket") != record.get("ticket") or
             current.get("version_id") != record.get("version_id")):
         raise VersioningError("active_version_changed")
     DeployedSourceVerifier(site_url).verify(record)
-    return {"ticket": ticket, "version_id": record.get("version_id"),
-            "expected_count": record.get("expected_count"),
-            "probe_count": len(record.get("probes", []))}
+    result = {"ticket": ticket, "version_id": record.get("version_id"),
+              "expected_count": record.get("expected_count"),
+              "probe_count": len(record.get("probes", []))}
+    if cached_probes:
+        final = service.get_active()
+        if (final.get("ticket") != record.get("ticket") or
+                final.get("version_id") != record.get("version_id") or
+                final.get("probes") != record.get("probes") or
+                final.get("probe_cache") != record.get("probe_cache")):
+            raise VersioningError("active_version_changed")
+        result["probe_verification"] = service._probe_summary(verification)
+    return result
 
 
 def main(argv=None) -> int:

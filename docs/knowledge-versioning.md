@@ -18,6 +18,8 @@ Registry generations represent accepted operator/synchronization intent, not Git
 
 ## Active retrieval and old ingestion
 
+Unchanged syncs retain all storage and source checks and query the vector store using validated cached probe embeddings. The receipt is stored with the version in the registry, so it survives process and runner restarts. It is bound to the full probe definitions and embedding/version identity. Cache misses require fresh successful verification; corrupt caches and failed retrieval stop the run. Changed builds and activation still verify with fresh embeddings. See [unchanged-content verification](knowledge-sync.md#unchanged-content-verification) for operation and reporting.
+
 Chat resolves the active record once per request and uses its recorded namespace and embedding profile throughout retrieval. It returns a `knowledge_version` identifier. A request already using version A can finish there while later requests use version B. Retrieved record hashes are checked against the captured version's receipts.
 
 Public chat requests cannot choose a namespace. The legacy ingestion function rejects writes to every `knowledge-` namespace, and rejects all legacy ingestion when versioned mode is enabled. The legacy JSON loader rejects assembled knowledge candidates and resume extraction artifacts. The existing upload workflow also skips its job when the repository variable `KNOWLEDGE_MODE` is `versioned`.

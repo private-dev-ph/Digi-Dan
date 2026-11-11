@@ -18,7 +18,7 @@ class Settings(BaseModel):
     api_bypass_secret: str | None = None
 
     gemini_api_key: str | None = None
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3.5-flash-lite"
     gemini_embedding_model: str = "gemini-embedding-001"
     embedding_dimensions: int = 768
 
@@ -84,7 +84,7 @@ def get_settings() -> Settings:
         allowed_origin_domains=_csv(os.getenv("ALLOWED_ORIGIN_DOMAINS")) or ["zachcodes.vercel.app"],
         api_bypass_secret=os.getenv("API_BYPASS_SECRET") or None,
         gemini_api_key=os.getenv("GEMINI_API_KEY") or None,
-        gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+        gemini_model=os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite"),
         gemini_embedding_model=os.getenv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001"),
         embedding_dimensions=int(os.getenv("EMBEDDING_DIMENSIONS", "768")),
         deepseek_api_key=os.getenv("DEEPSEEK_API_KEY") or None,

@@ -10,6 +10,7 @@ import time
 from api.knowledge.manifest import canonical_hash
 from api.knowledge.ports import MANAGED_NAMESPACE_PREFIX, VersioningError, initial_state
 from api.knowledge.resume_source import validate_url
+from api.knowledge.probe_cache import make_probe_cache, read_probe_cache
 
 
 def _fail(code):
@@ -173,19 +174,27 @@ class KnowledgeService:
             candidate_record = copy.deepcopy(prior)
             candidate_record["source"] = source
             self._verify_source(verify_source, candidate_record)
-            self._run_probes(prior, probes)
+            verification = self._run_probes(prior, probes, mode="prefer_cache")
+            self._verify_source(verify_source, candidate_record)
             def noop(s):
                 if s.get("generation", 0) != expected_generation or s.get("active") != prior["ticket"]:
                     _fail("generation_conflict")
                 # A content-identical build can carry a newer deployment
                 # receipt. Keep the immutable content identity while
                 # refreshing the receipt used by later activation checks.
-                s["versions"][prior["ticket"]]["source"] = copy.deepcopy(source)
+                current = s["versions"][prior["ticket"]]
+                if current.get("status") != "verified" or current.get("version_id") != version_id:
+                    _fail("generation_conflict")
+                current["source"] = copy.deepcopy(source)
+                current["probes"] = copy.deepcopy(probes)
+                current["probe_cache"] = copy.deepcopy(verification["cache"])
                 s["generation"] = expected_generation + 1
                 s["desired"] = prior["ticket"]
                 s["last_attempt"] = {"status": "unchanged", "ticket": prior["ticket"], "source": source, "at": self.clock()}
             self._update(noop)
-            return self._result("unchanged", prior)
+            result = self._result("unchanged", prior)
+            result["probe_verification"] = self._probe_summary(verification)
+            return result
         reusable = self._active_reuse_rows(profile)
         reuse_by_id = {chunk["id"]: reusable[chunk["id"]] for chunk in chunks
                        if chunk["id"] in reusable
@@ -229,11 +238,12 @@ class KnowledgeService:
             self._check_desired(ticket)
             self._wait_ready(namespace, len(chunks))
             self._validate_storage(record, chunks)
-            self._run_probes(record)
+            verification = self._run_probes(record)
             def verified(rec, state):
                 if rec["status"] in ("deleting", "deleted", "superseded"):
                     _fail("stale_job")
-                rec.update(status="verified", verified_at=self.clock(), error_code=None)
+                rec.update(status="verified", verified_at=self.clock(), error_code=None,
+                           probe_cache=copy.deepcopy(verification["cache"]))
             ok, _ = self._set_record(ticket, verified, desired=ticket)
             if not ok:
                 self._fail_record(ticket, "superseded")
@@ -303,19 +313,50 @@ class KnowledgeService:
             self._check_vector(row.get("vector"), rec["embedding"]["dimensions"])
         return copy.deepcopy(rows)
 
-    def _run_probes(self, rec, probes=None):
+    def _run_probes(self, rec, probes=None, *, mode="fresh"):
+        if mode not in {"fresh", "prefer_cache", "cached"}:
+            _fail("invalid_probe_mode")
         selected = probes if probes is not None else rec.get("probes")
         if not isinstance(selected, list) or not selected:
             _fail("invalid_version_record")
-        for probe in selected:
-            vectors = self.embedder.embed([probe["question"]], rec["embedding"])
-            if not isinstance(vectors, list) or len(vectors) != 1:
-                _fail("invalid_vectors")
-            self._check_vector(vectors[0], rec["embedding"]["dimensions"])
-            results = self.vectors.query(rec["namespace"], vectors[0], probe["top_k"])
+        cached = None
+        if mode != "fresh":
+            if not self._valid_record(rec, rec.get("ticket")):
+                _fail("version_not_verified")
+            cached = read_probe_cache(rec, selected)
+            if cached is None and mode == "cached":
+                _fail("probe_cache_miss")
+        vectors_used = []
+        for index, probe in enumerate(selected):
+            if cached is None:
+                vectors = self.embedder.embed([probe["question"]], rec["embedding"])
+                if not isinstance(vectors, list) or len(vectors) != 1:
+                    _fail("invalid_vectors")
+                vector = vectors[0]
+            else:
+                vector = cached["vectors"][index]
+            self._check_vector(vector, rec["embedding"]["dimensions"])
+            try:
+                results = self.vectors.query(rec["namespace"], vector, probe["top_k"])
+            except VersioningError:
+                raise
+            except Exception:
+                raise VersioningError("probe_failed") from None
+            if not isinstance(results, list):
+                _fail("probe_failed")
             got = {r.get("id") for r in results if isinstance(r, dict)}
             if not set(probe["expected_ids"]).issubset(got):
                 _fail("probe_failed")
+            vectors_used.append(list(vector))
+        cache = cached or make_probe_cache(rec, selected, vectors_used, self.clock())
+        return {"mode": "cached" if cached is not None else "fresh", "cache": cache,
+                "probe_count": len(selected), "embedding_inputs": 0 if cached is not None else len(selected)}
+
+    @staticmethod
+    def _probe_summary(verification):
+        return {"mode": verification["mode"], "probe_count": verification["probe_count"],
+                "embedding_inputs": verification["embedding_inputs"],
+                "cached_vectors_verified_at": verification["cache"]["verified_at"]}
 
     def _fail_record(self, ticket, code):
         def fail(rec, state):
@@ -339,7 +380,7 @@ class KnowledgeService:
         if self._read()[1].get("desired") != ticket:
             _fail("superseded")
         self._validate_storage(rec)
-        self._run_probes(rec)
+        verification = self._run_probes(rec)
         self._verify_source(verify_source, rec)
         def change(s):
             if expected_generation is not None and s.get("generation", 0) != expected_generation:
@@ -353,6 +394,12 @@ class KnowledgeService:
                 if oldrec:
                     oldrec["retired_at"] = self.clock()
                 s["history"] = [old] + [x for x in s.get("history", []) if x != old and x != ticket]
+            # Only the current active namespace needs a retained probe cache.
+            # Rollback and activation always verify with fresh embeddings.
+            for saved_ticket, saved_record in s["versions"].items():
+                if saved_ticket != ticket:
+                    saved_record.pop("probe_cache", None)
+            current["probe_cache"] = copy.deepcopy(verification["cache"])
             s["active"] = ticket
             s["last_attempt"] = {"status": "active", "ticket": ticket, "at": self.clock()}
             return copy.deepcopy(current)

@@ -180,6 +180,49 @@ class ProductionCliTests(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertEqual(json.loads(output.getvalue())["error_code"], "source_stale")
 
+    def test_cached_reader_requires_receipt_and_still_queries_storage(self):
+        from api.knowledge.versioning import KnowledgeService
+        from tests.test_stage3_versioning import Registry, Vectors, Embedder, PROFILE
+        registry, vectors = Registry(), Vectors()
+        service = KnowledgeService(registry, vectors, Embedder())
+        first = service.sync(valid_candidate(), PROFILE, expected_generation=0,
+                             verify_source=lambda _: True, probes=PROBES)
+        record = service.get_active()
+        with patch("api.knowledge.cloud.create_cloud_service", return_value=service), \
+             patch("api.knowledge.deployed_source.DeployedSourceVerifier"), \
+             patch.object(service.embedder, "embed", side_effect=AssertionError("must not embed")) as embed:
+            before_queries = vectors.queries
+            result = cli.verify(self.settings, ticket=first["ticket"], site_url="https://example.com",
+                                cached_probes=True, expected_version=record["version_id"], expected_probes=PROBES)
+            self.assertEqual(vectors.queries - before_queries, len(PROBES))
+            self.assertEqual(result["probe_verification"]["embedding_inputs"], 0)
+            registry.state["versions"][first["ticket"]].pop("probe_cache")
+            with self.assertRaises(VersioningError) as caught:
+                cli.verify(self.settings, ticket=first["ticket"], site_url="https://example.com",
+                           cached_probes=True, expected_version=record["version_id"], expected_probes=PROBES)
+            self.assertEqual(caught.exception.code, "probe_cache_miss")
+            embed.assert_not_called()
+
+    def test_cached_reader_rechecks_receipt_after_source_verification(self):
+        from api.knowledge.versioning import KnowledgeService
+        from tests.test_stage3_versioning import Registry, Vectors, Embedder, PROFILE
+        registry, vectors = Registry(), Vectors()
+        service = KnowledgeService(registry, vectors, Embedder())
+        first = service.sync(valid_candidate(), PROFILE, expected_generation=0,
+                             verify_source=lambda _: True, probes=PROBES)
+        record = service.get_active()
+        def concurrent_probe_change(_):
+            registry.state["versions"][first["ticket"]]["probes"] = [{**PROBES[0], "question": "new probe"}]
+        with patch("api.knowledge.cloud.create_cloud_service", return_value=service), \
+             patch("api.knowledge.deployed_source.DeployedSourceVerifier") as verifier, \
+             patch.object(service.embedder, "embed", side_effect=AssertionError("must not embed")) as embed:
+            verifier.return_value.verify.side_effect = concurrent_probe_change
+            with self.assertRaises(VersioningError) as caught:
+                cli.verify(self.settings, ticket=first["ticket"], site_url="https://example.com",
+                           cached_probes=True, expected_version=record["version_id"], expected_probes=PROBES)
+            self.assertEqual(caught.exception.code, "active_version_changed")
+            embed.assert_not_called()
+
     def test_status_uses_runtime_token_and_returns_only_selected_fields(self):
         state = {"generation": 7, "active": "ticket-1", "desired": "ticket-1",
                  "versions": {"ticket-1": {"ticket": "ticket-1", "version_id": "v1",

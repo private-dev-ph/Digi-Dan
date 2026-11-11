@@ -178,7 +178,7 @@ Legacy compatibility endpoint, disabled with HTTP 409 in versioned mode. In lega
 | `APP_NAME`, `PORTFOLIO_OWNER_NAME` | API display name and trusted owner name used in the system prompt. |
 | `CORS_ORIGINS`, `ALLOWED_ORIGIN_DOMAINS` | Browser CORS and custom-origin allowlists. |
 | `API_BYPASS_SECRET` | Trusted terminal/server `X-API-Secret`; never expose it in browser code. |
-| `GEMINI_API_KEY`, `GEMINI_MODEL`, `GEMINI_EMBEDDING_MODEL` | Gemini embeddings and generation settings. |
+| `GEMINI_API_KEY`, `GEMINI_MODEL`, `GEMINI_EMBEDDING_MODEL` | Gemini API credential, generation model (default `gemini-3.5-flash-lite`), and embedding model (default `gemini-embedding-001`). |
 | `EMBEDDING_DIMENSIONS` | Must match the Upstash Vector index dimension; default `768`. |
 | `DEEPSEEK_API_KEY`, `DEEPSEEK_BASE_URL`, `DEEPSEEK_MODEL` | DeepSeek generation settings. |
 | `UPSTASH_VECTOR_REST_URL`, `UPSTASH_VECTOR_REST_TOKEN` | Vector access. Versioned retrieval selects the namespace through the registry. |

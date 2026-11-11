@@ -73,6 +73,8 @@ class Stage4SyncTests(unittest.TestCase):
         self.assertEqual(result["counts"], {"processed": 1, "updated": 0, "unchanged": 0})
         mocks[5].assert_not_called()
         mocks[6].assert_called_once()
+        self.assertTrue(mocks[6].call_args.kwargs["cached_probes"])
+        self.assertEqual(mocks[6].call_args.kwargs["expected_probes"], [])
 
     def test_post_activation_verify_failure_keeps_activation_truth(self):
         stack = self.patches()
