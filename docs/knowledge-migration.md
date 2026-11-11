@@ -53,8 +53,8 @@ The portfolio snapshot owns profile, skills, contact, employment, and project fa
 | `seminar-professional-conferences` | **split** | Split into atomic, cited supplemental facts only; the broad legacy text is not imported. Portfolio-owned overlap remains authoritative. |
 | `metrics-career-impact` | **replaced** | Replaced: portfolio owns current metrics; corrected AOI reduction is more than 60%, not the legacy 150%. |
 | `languages-spoken` | **replaced** | Spoken languages now come from reviewed resume evidence; the duplicate legacy record is not imported. |
-| `reference-1` | **omitted** | Omitted: the user approved retaining only the résumé-supported references-available-upon-request policy; referee names and personal contact details are excluded. |
-| `reference-2` | **omitted** | Omitted: the user approved retaining only the résumé-supported references-available-upon-request policy; referee names and personal contact details are excluded. |
+| `reference-1` | **omitted** | Omitted: the source policy retains only the résumé-supported references-available-upon-request statement; referee names and personal contact details are excluded. |
+| `reference-2` | **omitted** | Omitted: the source policy retains only the résumé-supported references-available-upon-request statement; referee names and personal contact details are excluded. |
 | `contact-links` | **replaced** | Replaced: portfolio owns contact/profile links; legacy phone and email values are not copied into supplemental facts. |
 
 ## Supplemental source policy

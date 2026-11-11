@@ -1,6 +1,6 @@
 # Digi-Dan documentation
 
-Digi-Dan is a retrieval-augmented generation (RAG) backend for a portfolio assistant. It accepts a question, retrieves relevant facts from an Upstash Vector knowledge base, and asks Gemini or DeepSeek to form a grounded answer. The response includes the matched source records.
+Digi-Dan is a versioned retrieval-augmented generation (RAG) service for a portfolio assistant. It assembles reviewed portfolio, resume, and supplemental material into validated knowledge versions, then retrieves relevant records for each question. Gemini or DeepSeek generates the response, with eligible fallback between providers. Production uses shared Upstash Redis rate limiting through a trusted portfolio proxy.
 
 ![Digi-Dan chat interface](assets/digidan-chat.png)
 
@@ -8,7 +8,12 @@ Digi-Dan is a retrieval-augmented generation (RAG) backend for a portfolio assis
 
 - Read the [project README](../README.md) for setup, endpoints, deployment, template use, security guidance, and troubleshooting.
 - Read [Architecture](architecture.md) to understand the request path, components, and trust boundaries.
-- Use [`daniel-zachary-rag-data.json`](../daniel-zachary-rag-data.json) as the included knowledge-base example and data-shape reference.
+- Read [Production knowledge synchronization](knowledge-sync.md) for source assembly, validation, version preparation, activation, and periodic reconciliation.
+- Read [Knowledge versioning](knowledge-versioning.md) for version selection and safe activation.
+- Read [Shared rate limiting](shared-rate-limiting.md) for the production Redis limiter and trusted client identity.
+- Read [Conversation continuity](conversation-continuity.md) for bounded follow-up history and request behavior.
+- Read [Provider fallback](provider-fallback.md) for eligible Gemini/DeepSeek fallback behavior.
+- Use [`daniel-zachary-rag-data.json`](../daniel-zachary-rag-data.json) as a legacy knowledge-base shape reference; production knowledge uses reviewed versioned synchronization.
 
 ## What the repository contains
 
@@ -17,7 +22,8 @@ Digi-Dan is a retrieval-augmented generation (RAG) backend for a portfolio assis
 | `app.py` | ASGI entrypoint for Uvicorn and Vercel. |
 | `api/endpoint/` | FastAPI application, routes, and middleware registration. |
 | `api/query/` | RAG orchestration and generation-provider calls. |
-| `api/tools/` | Vector-store access, security helpers, and the ingestion CLI. |
+| `api/knowledge/` | Versioned knowledge stores, registry, and active-version resolution. |
+| `api/tools/` | Knowledge synchronization, production CLI, vector access, and legacy ingestion compatibility. |
 | `api/core/` | Settings, API models, and default prompt configuration. |
 | `docs/assets/` | Repository-owned logo and screenshot used by the README and portfolio showcase. |
 
@@ -25,20 +31,18 @@ Digi-Dan is a retrieval-augmented generation (RAG) backend for a portfolio assis
 
 Keep product-specific details close to their source of truth. Update the README when endpoint behavior, required configuration, deployment, or security boundaries change. Update [`portfolio-showcase.json`](../portfolio-showcase.json) and its referenced assets when changing the public project story.
 
-[TODO: Add a changelog or release-notes link if this project adopts one.]
-
 ## Resume preparation
 
-[Resume PDF preparation](resume-import.md) documents change detection, local text/OCR extraction, quality checks and preservation of the last valid extraction before Stage 2 ownership migration.
+[Resume PDF preparation](resume-import.md) documents change detection, local text/OCR extraction, quality checks and preservation of the last valid extraction before reviewed knowledge assembly.
 
 ## Knowledge assembly
 
-[Stage 2 knowledge assembly](knowledge-assembly.md) describes source ownership, reviewed supplements, bounded chunks, candidate validation and the local command. [Migration inventory](knowledge-migration.md) records the disposition of all legacy documents.
+[Knowledge assembly](knowledge-assembly.md) describes source ownership, reviewed supplements, bounded chunks, candidate validation and the local command. [Migration inventory](knowledge-migration.md) records the disposition of all legacy documents.
 
 ## Versioned knowledge
 
-[Stage 3 local versioning](knowledge-versioning.md) covers isolated staging, verification, activation, rollback, cleanup, chat integration and the remaining cloud integration milestone.
+[Knowledge versioning](knowledge-versioning.md) covers isolated version preparation, verification, activation, rollback, cleanup, and chat integration.
 
-[Stage 3 cloud preparation](knowledge-cloud-tests.md) covers the isolated test Redis setup, cloud adapters, offline/read-only preflight, and the remaining live validation steps.
+[Cloud validation notes](knowledge-cloud-tests.md) document cloud adapter validation and test setup.
 
-[Production integration](production-integration.md) describes source verification, runtime readiness and the controlled publication order.
+[Production integration](production-integration.md) describes source verification and runtime readiness.

@@ -1,27 +1,108 @@
 {
   "title": "Digi-Dan",
-  "summary": "A retrieval-augmented backend for a portfolio assistant that answers questions from curated profile, education, project, skill, and experience data instead of improvising.",
-  "logo": { "src": "docs/assets/digidan-logo.svg", "alt": "Digi-Dan logo" },
+  "summary": "A versioned retrieval-augmented service that keeps a portfolio assistant grounded in validated portfolio content, reviewed resume material, and approved supplements.",
+  "logo": {
+    "src": "docs/assets/digidan-logo.svg",
+    "alt": "Digi-Dan logo"
+  },
   "internalDemoAvailable": true,
   "images": [
-    { "src": "docs/assets/digidan-chat.png", "alt": "Digi-Dan chat panel answering a portfolio question with source citations", "caption": "Digi-Dan as presented in its portfolio chat interface." }
+    {
+      "src": "docs/assets/digidan-chat.png",
+      "alt": "Digi-Dan portfolio chat interface",
+      "caption": "Digi-Dan portfolio chat interface."
+    }
   ],
   "sections": [
-    { "type": "problemPurpose" },
-    { "type": "image", "title": "Grounded portfolio conversations", "summary": "The backend supplies retrieval-grounded answers to a portfolio chat experience.", "image": { "src": "docs/assets/digidan-chat.png", "alt": "Digi-Dan chat panel answering a portfolio question with source citations", "caption": "Portfolio chat interface powered by Digi-Dan." } },
-    { "type": "keyFeatures" }, { "type": "techStack" }, { "type": "role" }, { "type": "technicalHighlights" }, { "type": "challenges" }, { "type": "results" }, { "type": "lessons" }
+    {
+      "type": "problemPurpose"
+    },
+    {
+      "type": "image",
+      "title": "Grounded portfolio conversations",
+      "summary": "The backend supplies retrieval-grounded answers to a portfolio chat experience.",
+      "image": {
+        "src": "docs/assets/digidan-chat.png",
+        "alt": "Digi-Dan portfolio chat interface",
+        "caption": "Portfolio chat interface powered by Digi-Dan."
+      }
+    },
+    {
+      "type": "keyFeatures"
+    },
+    {
+      "type": "techStack"
+    },
+    {
+      "type": "role"
+    },
+    {
+      "type": "technicalHighlights"
+    },
+    {
+      "type": "challenges"
+    },
+    {
+      "type": "results"
+    },
+    {
+      "type": "lessons"
+    }
   ],
-  "problem": "Portfolio visitors may ask open-ended questions that static pages cannot anticipate. The assistant needed to answer from approved material without exposing credentials or falling back to generic, ungrounded chat.",
-  "purpose": "Create a deployable API that retrieves the most relevant curated knowledge-base chunks, supplies them to a generation provider as bounded context, and returns the answer with its source records.",
-  "keyFeatures": ["Retrieval-augmented chat over structured JSON, JSONL, and text knowledge-base content.", "Gemini embeddings for retrieval, with Gemini or DeepSeek selectable for answer generation.", "Answer payloads that include the matched source records for transparent review and debugging.", "A Bearer-protected ingestion endpoint alongside a CLI uploader for vector data.", "Allowed-origin checks, a trusted server-to-server bypass, and per-client chat rate limiting.", "A Vercel-compatible FastAPI deployment path with GitHub Actions automation for RAG-data uploads."],
-  "techStack": ["Python", "FastAPI", "Uvicorn", "Pydantic", "Google Gen AI / Gemini", "DeepSeek API", "Upstash Vector", "Vercel", "GitHub Actions"],
+  "problem": "Portfolio facts change over time, while visitors ask open-ended questions. The assistant needed a reliable way to publish reviewed updates and answer from retrieved material without exposing trusted credentials to the browser.",
+  "purpose": "Assemble portfolio exports, reviewed resume material, and approved supplements into validated knowledge versions; activate a complete version safely; and serve retrieval-grounded answers through the portfolio chat.",
+  "keyFeatures": [
+    "Versioned knowledge assembly from portfolio exports, reviewed resume content, and approved supplements.",
+    "Version validation and controlled activation preserve the last good knowledge version when a candidate fails.",
+    "Relevant source pushes and production deployment events trigger synchronization; scheduled reconciliation provides best-effort periodic freshness.",
+    "Gemini embeddings retrieve evidence; Gemini or DeepSeek can generate answers with eligible fallback using the same retrieved evidence.",
+    "Bounded follow-up history supports conversational questions while each request retrieves current evidence.",
+    "A trusted portfolio server identity and Upstash Redis provide shared network-based chat rate limiting."
+  ],
+  "techStack": [
+    "Python",
+    "FastAPI",
+    "Uvicorn",
+    "Pydantic",
+    "Google Gen AI / Gemini",
+    "DeepSeek API",
+    "Upstash Vector",
+    "Upstash Redis",
+    "Vercel",
+    "GitHub Actions"
+  ],
   "role": "Led the RAG backend build and portfolio-assistant integration across retrieval and generation, ingestion tooling, security boundaries, and the local-to-Vercel deployment path.",
-  "technicalHighlights": ["Uses Gemini embeddings to turn each question into a vector query, retrieve the most relevant Upstash Vector chunks, and assemble a character-bounded context before generation.", "Separates provider concerns: Gemini or DeepSeek can generate the answer while the retrieval pipeline retains one embedding and vector-index contract.", "Returns the answer, selected provider, and retrieved source records in one response so the portfolio interface can inspect its grounding.", "Supports two ingestion paths: a validated, admin-protected API route and a CLI uploader for JSON, JSONL, or plain-text documents.", "Separates public browser access from trusted callers with allowed-origin middleware, an X-API-Secret server bypass, a separate Bearer token for ingestion, and per-client chat rate limiting.", "Runs locally with Uvicorn and deploys on Vercel through a compatible ASGI entrypoint and an Actions-based data-upload workflow."],
-  "challengesAndSolutions": [
-    { "challenge": "The assistant needs to handle broad natural-language questions without treating general model output as a reliable account of someone's work.", "solution": "Retrieves focused, approved chunks before generation, caps the context passed to the model, and returns matched source records so the calling interface can review the grounding." },
-    { "challenge": "The public chat experience needs API access, while ingestion and trusted server calls cannot expose administrative or bypass secrets in browser code.", "solution": "Enforces configured browser origins, reserves X-API-Secret for trusted server-to-server calls, protects ingestion with a separate Bearer token, and limits chat requests by client." },
-    { "challenge": "Portfolio content changes over time, and manually keeping the vector index current would make the assistant stale or fragile.", "solution": "Provides a reusable CLI uploader and GitHub Actions workflow that uploads RAG data when relevant data or ingestion code changes on main." }
+  "technicalHighlights": [
+    "Portfolio exports, reviewed resume material, and approved supplements are assembled into a versioned candidate and validated before activation.",
+    "A verified activation switches the active knowledge version only after readiness checks, preserving the last good version on candidate failure.",
+    "Relevant source pushes, production deployment events, and periodic scheduled reconciliation initiate synchronization; scheduled timing is best effort, not a freshness guarantee.",
+    "Gemini embeddings retrieve source chunks once for generation; eligible Gemini/DeepSeek fallback uses that same retrieved evidence.",
+    "Responses include retrieved source records for whole chunks actually supplied as context. They are not statement-level citations and do not guarantee hallucination-free answers.",
+    "A trusted portfolio backend sends server-held authentication and HMAC-derived client identity; Upstash Redis shares a 10-per-hour network-based limit across instances."
   ],
-  "resultsImpact": ["Gives the portfolio a practical way to answer questions beyond fixed page copy while keeping conversations anchored to curated material.", "Carries retrieved source records with every chat response, giving the consuming interface a clear basis for review, troubleshooting, and future presentation choices.", "Establishes a reusable, deployment-ready pattern for a portfolio assistant, resume chatbot, documentation assistant, or small knowledge-base chatbot without relying on unverified performance or adoption metrics."],
-  "lessonsLearned": ["Retrieval quality starts with the knowledge base: clear chunk wording, focused topics, and dedicated summaries make broad questions easier to answer.", "Multiple answer providers are useful, but they do not replace a stable embedding model, index dimension, and retrieval contract.", "Source visibility is part of the product experience, not only a debugging aid; returning sources makes grounded behavior easier to inspect.", "Secrets and privileged ingestion belong on trusted server or automation paths rather than in browser code."]
+  "challengesAndSolutions": [
+    {
+      "challenge": "The assistant needs to handle broad natural-language questions without treating general model output as a reliable account of someone's work.",
+      "solution": "Retrieves focused, approved chunks before generation, caps the context passed to the model, and returns matched source records so the calling interface can review the grounding."
+    },
+    {
+      "challenge": "The public chat experience needs API access, while ingestion and trusted server calls cannot expose administrative or bypass secrets in browser code.",
+      "solution": "Requires a trusted portfolio server to attach the API secret and server-derived HMAC client identity; Upstash Redis enforces the shared network-based chat limit across instances."
+    },
+    {
+      "challenge": "Portfolio updates, resume changes, and supplemental facts need different review levels, and partial uploads must not replace usable knowledge.",
+      "solution": "Assembles a versioned candidate, validates it in a separate knowledge collection, then activates only after verification. Resume updates and designated conflicts retain a review gate; failed candidates leave the last good version active."
+    }
+  ],
+  "resultsImpact": [
+    "Keeps the active assistant knowledge aligned with reviewed portfolio changes through versioned synchronization and verified activation.",
+    "Preserves the last good version when a new candidate fails validation or readiness checks.",
+    "Returns source records for retrieved chunks so answers can be inspected against the supplied evidence, without implying statement-level citations or a guarantee against hallucinations."
+  ],
+  "lessonsLearned": [
+    "A versioned candidate and explicit activation gate make content publication safer than direct in-place updates.",
+    "Resume edits need review even when other portfolio facts can synchronize automatically.",
+    "Provider fallback is safest when it reuses the same retrieved evidence and context.",
+    "Trusted identity and shared rate limits belong in the server path, never browser-held secrets."
+  ]
 }

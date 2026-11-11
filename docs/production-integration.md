@@ -1,18 +1,10 @@
-# Production integration and rollout
+# Production integration and operations
 
-Production source verification and read-only runtime wiring are implemented. The live chat mode defaults to `legacy`; publishing this code does not activate a new knowledge version.
-
-## Publication order
-
-1. Publish Digi-Dan's processor and runtime preparation first. The old upload workflow is now manual-only, preventing a code deployment from automatically re-embedding the legacy corpus.
-2. Publish the portfolio shared resolver and `/api/knowledge` export. Its Production environment must contain `PORTFOLIO_PUBLIC_URL=https://zachcodes.vercel.app` as a public config variable.
-3. Verify the actual deployed export and PDF, then prepare a new candidate using the production origin. The localhost test candidate is deliberately rejected for production.
-4. Configure the production Redis registry and separate runtime/worker credentials, stage and verify a production namespace, then perform the controlled mode switch. The general cloud factory rejects production writes. Dedicated staging and rollout paths perform the controlled writes; the deployed chatbot uses read-only adapters.
+Production source verification and read-only runtime wiring support versioned knowledge. Publishing code alone does not activate a new knowledge version. Set the portfolio deployment's `PORTFOLIO_PUBLIC_URL` to its canonical HTTPS origin, and use the same origin for Digi-Dan source checks and synchronization.
 
 ## Source readiness
 
 ```powershell
-Set-Location 'C:\Users\USER\Documents\GitHub\Digi-Dan'
 .\.venv\Scripts\python.exe -m api.tools.knowledge_production_check --site-url https://zachcodes.vercel.app
 ```
 
@@ -47,10 +39,10 @@ A blank registry is valid. Successful reads prove only that those reads succeede
 they do not prove either credential's write permissions or establish Redis
 read-only enforcement. This preflight does not activate production knowledge. The
 `UPSTASH_REDIS_REST_READ_ONLY_TOKEN` name is for this local preflight file; when
-configuring Vercel later, place that value in its `UPSTASH_REDIS_REST_TOKEN` setting.
+configuring Vercel, place that value in its `UPSTASH_REDIS_REST_TOKEN` setting.
 The application does not automatically read the new `READ_ONLY_TOKEN` name.
 
-## Production staging and status
+## Production version preparation and status
 
 The production CLI supports `status`, `stage`, `activate`, `rollback`, and
 `verify`. These commands validate the production overlay and worker/runtime
@@ -58,7 +50,7 @@ separation. `status` uses the runtime token
 with `writable=False` and prints only registry revision, generation, desired and
 active selection, and selected version fields. It never scans vectors or embeds.
 
-Prepare a policy-reviewed production candidate first. Then stage it with an
+Prepare a policy-reviewed production candidate first. Then build it with an
 explicit generation read from the latest `status` output:
 
 ```powershell
@@ -71,14 +63,14 @@ explicit generation read from the latest `status` output:
 
 The default resume input is `.resume-state/production/last-successful.json`; the
 default retrieval fixture is `knowledge/production-retrieval-probes.json`. Override
-them with `--resume` or `--probes` when needed. Staging rebuilds the candidate from
+them with `--resume` or `--probes` when needed. Version preparation rebuilds the candidate from
 the current deployed manifest, resume snapshot, source policy, and legacy input,
 then requires a full match with the supplied candidate before constructing the
-writer. The expected generation is mandatory to prevent stale concurrent staging.
+writer. The expected generation is mandatory to prevent stale concurrent builds.
 
-Staging records an intent, desired version, and incremented generation before
+Version preparation records an intent, desired version, and incremented generation before
 uploading vectors. After stored-vector checks and retrieval probes, the core
-marks the record verified; the staging wrapper then performs a final
+marks the record verified; the preparation wrapper then performs a final
 source verification before reporting success. It does not change the active
 version or live chat mode. Failures retain the previous active version. A failure
 of that final check can leave a verified inactive record or namespace behind.
@@ -103,9 +95,8 @@ chat mode or retries automatically.
 Use `rollback <ticket>` with the same options when the target is an eligible
 retained version. A first production version has no historical production
 version to roll back to. In that case, emergency fallback is switching the
-runtime configuration to legacy and redeploying. Keep the legacy 48-namespace
-corpus available for that fallback. Later rollbacks still require the target to
-pass current review policy and deployed-source checks; otherwise stage a fresh
+runtime configuration to legacy and redeploying. Keep the legacy corpus of 48 records available for that fallback. Later rollbacks still require the target to
+pass current review policy and deployed-source checks; otherwise prepare a fresh
 candidate from the current sources.
 
 The read-only runtime smoke command verifies the active ticket, deployed source
@@ -127,8 +118,8 @@ The application constructs the cloud reader only when both `KNOWLEDGE_MODE=versi
 
 While mode is legacy, status indicates the selected mode; it is not a probe of Gemini/Vector availability. In versioned mode, it checks the active registry record; semantic retrieval and generation require their own smoke checks.
 
-## Remaining deployment work
+## Operational notes
 
-Do not switch the runtime to versioned mode before a verified production version exists. Keep the original namespace available for controlled fallback during rollout. Configure the Vercel runtime with the read-only Redis token and the explicit versioned production settings when ready; the CLI cannot publish that configuration or change the live chat mode. Configure background sync credentials in GitHub Actions, with read-only database tokens in Vercel where supported. Test Redis data is not a production registry, even though the test schemas match.
+The production runtime is configured for versioned mode and uses restricted read-only Redis credentials. GitHub Actions holds the writer credentials. Keep the original legacy namespace available for controlled fallback during operations; test Redis data is not a production registry. The CLI cannot publish Vercel configuration or change live chat mode.
 
-Automatic portfolio deployment triggers, showcase reconciliation and scheduled sync remain Stage 4. The resume-preparation workflow produces pending artifacts on PDF changes; those artifacts do not automatically approve new facts or activate knowledge.
+Manual, push, deployment, and native scheduled synchronization paths are supported. The hourly cron is configured, but timing is periodic and no hourly delivery guarantee is claimed. Resume-preparation artifacts do not approve new facts or activate knowledge; changed resume facts remain subject to human review. No independent staleness alert is configured; proactive monitoring remains optional.

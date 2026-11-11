@@ -1,57 +1,59 @@
-# Architecture
+# Runtime architecture
 
-Digi-Dan is a small FastAPI service that combines vector retrieval with a selected text-generation provider. It is designed for a portfolio frontend or another trusted server to call rather than for browser code to hold privileged credentials.
+Production chat uses versioned knowledge retrieval, trusted portfolio identity, and a Redis-backed shared limiter. The limiter uses a separate restricted Redis credential from the read-only knowledge registry credential.
 
 ```mermaid
 flowchart LR
-    Client[Portfolio frontend or trusted server] -->|POST /api/chat| App[FastAPI application]
-    App --> Security[Origin and rate-limit checks]
-    Security --> Embed[Gemini embedding model]
-    Embed --> Vector[Upstash Vector]
-    Vector --> Context[Retrieved source chunks]
-    Context --> Provider[Gemini or DeepSeek]
-    Provider --> Response[Answer, provider, and sources]
-
-    Admin[CLI, GitHub Actions, or trusted admin] -->|POST /api/ingest| Ingest[Bearer-token protected ingestion]
-    Ingest --> Embed
-    Ingest --> Vector
+    Browser[Portfolio chat in browser] -->|message and bounded history| Proxy[Portfolio server route]
+    Proxy -->|X-API-Secret plus opaque HMAC client ID| API[FastAPI POST /api/chat]
+    API --> Auth[Validate secret, identity, request]
+    Auth --> Limit[Atomic Redis rate-limit decision]
+    Limit --> Retrieve[Resolve active version and retrieve]
+    Retrieve -->|Gemini embedding| Embed[Gemini embeddings]
+    Embed --> Vector[Versioned Upstash Vector]
+    Vector --> Evidence[Retrieved evidence and source records]
+    Evidence --> Generate[Gemini or DeepSeek generation]
+    Generate --> API
+    API --> Proxy
+    Proxy --> Browser
 ```
 
-## Request path
+The browser never receives the backend API secret or HMAC key. It calls the portfolio route, which discards browser-supplied internal identity headers, derives an opaque 64-character lowercase hexadecimal HMAC-SHA256 identity from the trusted Vercel ingress IP, and sends that identity with `X-API-Secret`. Digi-Dan chat requires both a valid secret and identity in `trusted_proxy` mode. An allowed Origin by itself is not authentication.
 
-1. A caller sends a message to `POST /api/chat`, optionally selecting a generation provider, result count, and bounded prior conversation. Public namespace and system-prompt overrides are rejected.
-2. The service applies origin rules, validates the request, and authenticates client identity before charging one allowance. In shared mode the portfolio sends an opaque HMAC identity with its server secret, and an atomic Redis operation coordinates all backend instances. An allowed Origin alone cannot bypass trusted identity. Limiter failure returns 503 before retrieval; exhaustion returns 429 with Retry-After. See [shared rate limiting](shared-rate-limiting.md) for compatibility modes and cutover.
-3. For recognized follow-ups, Digi-Dan augments the retrieval question with bounded recent subject hints. Gemini embeds the resulting query. Upstash Vector returns current relevant chunks; the active knowledge version is resolved once per request.
-4. Digi-Dan builds a grounded prompt with retrieved chunks, separately labelled untrusted conversation history and the current question. Automatic requests try the configured default generation provider, then the other provider once only after an eligible failure. Both attempts receive the same assembled prompt and captured evidence. Explicit provider selection disables fallback. History is not an authoritative fact source. The portfolio sends only one backend request.
-5. The API returns the answer, provider, and only complete nonblank source chunks admitted to the generation context. The context budget counts IDs, text, and separators; chunks that do not fit are skipped while later chunks are still considered. Returned source text is the normalized text supplied to generation. These records identify supplied evidence; they do not prove that each answer claim is supported or cited.
+## Chat request path
 
-Even when DeepSeek is selected for generation, Gemini remains necessary for the embedding path.
+1. The browser submits a current question and up to four recent complete user/assistant exchanges. See [conversation continuity](conversation-continuity.md) for validation and prompt boundaries.
+2. The portfolio proxy authenticates its server-to-server request to Digi-Dan. Digi-Dan validates the chat payload and both trusted headers before consuming one rate-limit allowance.
+3. The production limiter atomically admits or denies the opaque identity in Redis. A denial returns 429; a limiter error fails closed with 503. No retrieval or generation runs on either path. See [shared rate limiting](shared-rate-limiting.md).
+4. The backend resolves the active knowledge version once, builds a retrieval query (including bounded subject hints for recognized follow-ups), embeds it with Gemini, and queries the matching versioned Upstash Vector namespace.
+5. It assembles retrieved evidence, separately labelled untrusted conversation history, the current question, and server-rendered trusted instructions. Generation uses the default provider and may make one eligible fallback attempt. Explicitly pinned providers do not fall back. See [provider fallback](provider-fallback.md).
+6. The response identifies the answering provider and captured knowledge version and returns only complete source chunks actually supplied to generation. These records show supplied evidence; they are not sentence-level citations and do not prove every answer claim.
+
+Gemini embeddings remain on the retrieval path even when DeepSeek is selected for generation. An embedding failure stops the request before generation; generation fallback does not cover retrieval failures.
+
+## Operational limits
+
+The 10-per-hour allowance is keyed by network-derived identity, not a person; shared networks share quota. Scheduled knowledge synchronization is best effort and does not guarantee hourly freshness. See [shared rate limiting](shared-rate-limiting.md) for identity and quota semantics.
+
+## Knowledge lifecycle
+
+Versioned knowledge is managed separately from chat rate limiting. The synchronization flow assembles portfolio facts, creates and validates a version, then activates it for retrieval; production chat uses the active version and does not write knowledge. The hourly schedule remains configured, but GitHub scheduling and reconciliation are periodic and do not guarantee hourly freshness. See the repository's [knowledge synchronization guide](knowledge-sync.md) for operational setup.
 
 ## Components
 
 | Component | Responsibility |
 | --- | --- |
-| `app.py` | Imports and exposes the FastAPI application for Uvicorn and Vercel. |
-| `api/endpoint/application.py` | Defines the root, health, chat, and ingest routes; registers CORS and origin middleware. |
-| `api/query/rag.py` | Coordinates retrieval, prompt assembly, answer creation, and ingestion. |
-| `api/query/providers.py` | Calls Gemini embeddings plus Gemini or DeepSeek generation. |
-| `api/query/generation.py` | Owns generation fallback, shared deadline, safe failure diagnostics and public errors. |
-| `api/tools/vector_store.py` | Queries and upserts data in Upstash Vector. |
-| `api/tools/security.py` | Applies origin/bypass handling, admin-token checks, and chat rate limiting. |
-| `api/tools/rate_limit.py` | Owns atomic Redis allowance decisions and isolated local memory counters. |
-| `api/tools/upload_vectorstore.py` | Loads JSON, JSONL, or text files for vector ingestion. |
+| `app.py` | FastAPI ASGI entry point. |
+| `api/endpoint/application.py` | Routes, middleware, chat orchestration boundary. |
+| `api/query/rag.py` | Retrieval, evidence and prompt assembly. |
+| `api/query/generation.py` | Provider selection, eligibility, deadlines and safe generation errors. |
+| `api/knowledge/cloud.py`, `cloud_embeddings.py`, `cloud_vectors.py` | Production registry, Gemini embedding and versioned vector adapters. |
+| `api/knowledge/versioning.py`, `production_staging.py`, `production_rollout.py` | Version validation, preparation and activation/rollback operations. |
+| `api/tools/security.py` | Chat authentication and rate-limit admission. |
+| `api/tools/rate_limit.py` | Redis limiter and compatibility memory/local implementations. |
 
-## Trust boundaries
+## Compatibility and operations
 
-- Origin rules are not authentication. In `trusted_proxy` mode chat requires the server secret and validated client ID even for an allowed Origin.
-- `X-API-Secret` is a trusted server or terminal bypass. It must never be sent from browser JavaScript.
-- `POST /api/ingest` requires `Authorization: Bearer BOT_ADMIN_TOKEN`; treat it as an administrative operation.
-- Gemini, DeepSeek, and Upstash credentials stay in local, deployment, and automation environment variables rather than the repository.
+Code defaults still include `memory` rate limiting and legacy identity behavior for local or compatibility deployments. Those defaults are not the production configuration and do not provide shared production enforcement. Production uses `CHAT_RATE_LIMIT_BACKEND=redis` and `CHAT_CLIENT_IDENTITY_MODE=trusted_proxy`; do not infer deployed settings from code defaults.
 
-## Deployment and data operations
-
-The root ASGI entrypoint supports local Uvicorn development and Vercel's FastAPI deployment flow. The included GitHub Actions workflow can upload the RAG data after relevant changes on `main`; it needs the Gemini and Upstash repository secrets described in the [README](../README.md#github-actions-rag-upload).
-
-The vector index dimension must match `EMBEDDING_DIMENSIONS`. Keep each knowledge-base document focused, use stable IDs, include useful metadata, and add summary chunks for broad questions. See the [README's RAG data and upload section](../README.md#rag-data-and-upload) for examples and upload commands.
-
-[TODO: Add a deployment diagram, supported environment matrix, or observability runbook if the project gains those operational requirements.]
+The versioned knowledge store is separate from the limiter keyspace and credentials. The dedicated limiter token is scoped to limiter keys and cannot read the knowledge registry. For knowledge synchronization, see [knowledge-sync.md](knowledge-sync.md); credential configuration is documented in [production-integration.md](production-integration.md).

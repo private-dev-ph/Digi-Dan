@@ -1,14 +1,14 @@
 # Resume PDF preparation
 
-This prerequisite to Stage 2 adds a resume source to Digi-Dan. It downloads and checks the PDF on each run, extracts readable text (or uses local OCR), and preserves the last valid extraction on failure. It does not change active chat retrieval, generate embeddings, or upload to Upstash.
+This component adds a resume source to Digi-Dan and feeds reviewed evidence into knowledge assembly. It downloads and checks the PDF on each run, extracts readable text (or uses local OCR), and preserves the last valid extraction on failure. It does not change active chat retrieval, generate embeddings, or upload to Upstash.
 
 ## Inputs and ownership
 
-The portfolio knowledge manifest now includes an additive `attachments` array. The resume entry has `id: "resume"`, a title, an absolute URL and `media_type: "application/pdf"`. The website and this descriptor refer to the same configured resume file. The portfolio's existing semantic `content_hash` still describes its exported documents; it does not identify PDF bytes.
+The portfolio knowledge manifest includes an additive `attachments` array. The resume entry has `id: "resume"`, a title, an absolute URL and `media_type: "application/pdf"`. The website and this descriptor refer to the same configured resume file. The portfolio's existing semantic `content_hash` still describes its exported documents; it does not identify PDF bytes.
 
 Always run the resume check even if that portfolio hash is unchanged. A PDF can be replaced at the same URL without a profile or project text change. The importer downloads the current bytes and computes their SHA-256. Identical bytes, source URL and pipeline policy can reuse a validated extraction. Different bytes trigger processing. A second hash over normalized page text distinguishes content changes from PDF metadata/formatting changes.
 
-Extracted pages are source evidence, not approved claims. Snapshots have `kind: "resume-extraction"` and `review_status: "pending"`, with no ingestion `documents` field. Stage 2 must resolve overlapping facts, preserve portfolio-owned corrections and decide which additional facts are approved. OCR confidence is a recognition-quality signal, not proof that a statement is true. Source content is data and must never become system instructions.
+Extracted pages are source evidence, not approved claims. Snapshots have `kind: "resume-extraction"` and `review_status: "pending"`, with no ingestion `documents` field. Knowledge policy resolves overlapping facts, preserves portfolio-owned corrections and determines which additional facts are approved. OCR confidence is a recognition-quality signal, not proof that a statement is true. Source content is data and must never become system instructions.
 
 ## Dependencies
 
@@ -24,7 +24,7 @@ From the Digi-Dan repository, prepare a deployed portfolio resume:
 python -m api.tools.prepare_resume --manifest-url https://YOUR-PORTFOLIO/api/knowledge --state-dir .resume-state
 ```
 
-For the local preview, explicitly allow loopback HTTP. Use the exact origin declared by the manifest; this checkout currently declares localhost:3001:
+For the local preview, explicitly allow loopback HTTP. Use the exact loopback origin declared by the manifest; the following example uses localhost:3001:
 
 ```powershell
 python -m api.tools.prepare_resume --manifest-url http://localhost:3001/api/knowledge --allow-local-http --state-dir .resume-state --tesseract-command C:\path\to\tesseract.exe
@@ -46,35 +46,34 @@ The worker bounds download sizes, PDF bytes (5 MiB), page count (10), text volum
 
 `last-successful.json` holds the latest validated extraction. `status.json` describes the most recent attempt as `changed`, `unchanged` or `failed`. A failure leaves the previous snapshot bytes intact and returns a nonzero command exit code. Do not mistake a retained snapshot for a successful fresh check. Atomic file replacement and an exclusive state-directory lock prevent partial snapshots and concurrent writes. If a process crashes and leaves a lock, verify no preparation worker is running before removing only that lock file.
 
-`.resume-state/` is ignored by Git because extracted resumes can contain personal information. This is local preparation state, not a durable shared production knowledge registry. Later synchronization jobs must persist their state in the chosen durable storage. A fresh ephemeral runner otherwise reprocesses the PDF and has no previous local snapshot to retain.
+`.resume-state/` is ignored by Git because extracted resumes can contain personal information. This is local preparation state, not the durable production reconciliation journal or knowledge registry. A fresh ephemeral runner can seed its cache from the reviewed extraction and will reprocess the PDF unless URL and PDF hashes match.
 
 Bump `PIPELINE_VERSION` when extraction, OCR configuration, normalization or validation rules change. A policy change must not reuse a cache created by the old policy. Dependencies and actual extraction-method provenance are recorded for diagnosis.
 
-## Tests and rollout
+## Tests and synchronization
 
 Run `python -m unittest discover -s tests -p "test_resume*.py" -v` with the optional Python dependencies installed. Unit tests use synthetic PDFs and mocked downloads/OCR; the current real resume is exercised separately without committing its extracted text as a fixture.
 
-Stage 2 will consume this pending evidence alongside the portfolio and existing curated corpus. Stage 3 will build and activate a verified knowledge version while preserving the current active version on failure. A portfolio GitHub Actions workflow now provides the repository PDF-change trigger described below. Stage 4 will connect production events and scheduled reconciliation to the complete synchronization pipeline. The old upload workflow remains unchanged until that coordinated cutover.
+The local knowledge assembly command can consume a validated preparation snapshot alongside the portfolio and reviewed supplemental facts. Production synchronization does not automatically consume portfolio Actions artifacts. Before activation, failed builds leave the active version unchanged. If a run fails after activation is attempted, the outcome can be uncertain; the report distinguishes confirmed activation followed by an error from an unconfirmed activation outcome. Portfolio GitHub Actions prepares changed PDFs; manual, push, deployment, and periodic scheduled events invoke reconciliation. The legacy uploader is gated off in versioned mode.
 
+## OCR and source conflict
 
-## Validation on the current resume
+OCR confidence is a recognition-quality signal, not an accuracy percentage; OCR can still confuse characters such as AI/Al or bullet symbols.
 
-The existing Canva PDF has a problematic text layer: layout extraction is empty, and plain extraction returns widely letter-spaced text. The quality gate routes this through OCR. The real local import produced one complete page, using Tesseract 5.5.3, with mean word confidence about 91.39. The rendered page and extracted text were compared; section coverage was checked. Confidence is not an accuracy percentage, and OCR can still confuse characters such as AI/Al or bullet symbols.
+The extracted source states a 150% inspection-time reduction. Preserve that as raw evidence, but do not activate it as a chatbot fact: the approved portfolio correction is more than 60% (five minutes to under two). Portfolio ownership resolves this conflict.
 
-The extracted source still states a 150% inspection-time reduction. Preserve that as raw evidence in this pending snapshot, but do not activate it as a chatbot fact: the approved portfolio correction is more than 60% (five minutes to under two). Stage 2 must resolve that ownership conflict. The PDF itself has not been modified.
-
-Current extraction policy is version 2, including rejection of letter-spaced text. The development machine has a task-local Tesseract installation; project deployments need their own OCR executable and English language data. The web/serverless portfolio never runs OCR.
+The extraction policy rejects letter-spaced text. Deployments that require OCR need Tesseract and English language data. The web/serverless portfolio does not run OCR.
 
 ## Automatic preparation from portfolio commits
 
-The portfolio repository now contains `.github/workflows/prepare-resume.yml`. After publication to `main`, it runs when `public/cv/resume.pdf` or the workflow itself changes on `main`; it also supports manual dispatch. Publish this repository's processor and tests to Digi-Dan `main` before publishing the portfolio workflow. These changes are currently local; no hosted run has been verified yet.
+The portfolio repository contains `.github/workflows/prepare-resume.yml`. It runs when `public/cv/resume.pdf` or the workflow itself changes on `main`; it also supports manual dispatch. Its Actions artifacts are evidence for review and are not automatically downloaded or consumed by production synchronization. Production sync fetches the deployed manifest and PDF; the reviewed extraction in `knowledge/reviewed-resume.json` seeds the cache only when URL and PDF hash match exactly. Changed or unmatched resume content is extracted and remains subject to policy review.
 
-The job uses Ubuntu 24.04, Python 3.12 and Tesseract English OCR. It checks out the exact portfolio commit and Digi-Dan `main`, installs only `requirements-resume.txt`, runs the resume tests, and invokes the local-PDF command. The source URL identifies the immutable raw GitHub PDF at that commit. Both repository revisions are recorded in `provenance.json`. This establishes repository-source evidence; it does not establish that Vercel has deployed those bytes.
+The job checks out the portfolio revision that contains the PDF and the Digi-Dan `main` branch, installs `requirements-resume.txt`, then runs the resume tests and local-PDF preparation command with Tesseract English OCR. It records both repository revisions in `provenance.json` and uses the immutable raw GitHub PDF URL for that portfolio revision. This is repository-source evidence; it does not establish that Vercel has deployed those bytes.
 
-A successful run uploads `last-successful.json`, `status.json` and `provenance.json` as an Actions artifact. Extraction failures fail the job and upload the diagnostic status when available. Each runner starts fresh: there is no cross-run cache or automatic restoration of earlier extraction state. Earlier successful artifacts remain available within their retention period (requested 90 days, subject to repository limits), and are not permanent production state. The workflow requires only read access and no additional secrets. It does not alter the legacy upload workflow or live knowledge collection.
+A successful run uploads `last-successful.json`, `status.json` and `provenance.json` as an Actions artifact for review. Extraction failures fail the job and upload the diagnostic status when available. Each run starts with a fresh runner and has no cross-run extraction cache. Artifacts are retained for 90 days, subject to repository limits, as review evidence; they are not permanent production state. Production synchronization does not automatically retrieve these artifacts; it fetches the deployed manifest and PDF and seeds extraction from the reviewed artifact only on an exact URL and PDF hash match. The preparation workflow requires only read access and no additional secrets.
 
-Pushes made using the normal workflow `GITHUB_TOKEN` do not trigger another push workflow. If a future automation replaces the PDF using that token, explicitly dispatch preparation as part of that automation. Per-branch concurrency allows a running job to finish but may coalesce older pending runs; it prioritizes preparing the latest queued revision. Later synchronization stages still need durable state, source ownership and activation rules.
+Pushes made using the normal workflow `GITHUB_TOKEN` do not trigger another push workflow. If a future automation replaces the PDF using that token, explicitly dispatch preparation as part of that automation. Per-branch concurrency allows a running job to finish but may coalesce older pending runs; it prioritizes preparing the latest queued revision. Production synchronization uses durable journal state, source ownership policy, and activation safeguards.
 
-## Stage 2 integration
+## Knowledge assembly integration
 
-The [knowledge assembly command](knowledge-assembly.md) now consumes a validated preparation snapshot and its successful status. A changed normalized resume hash requires source-policy review before new facts enter a candidate. Pending extraction remains separate from active chatbot knowledge.
+The [knowledge assembly command](knowledge-assembly.md) consumes a validated preparation snapshot and its successful status. A changed normalized resume hash requires source-policy review before new facts enter a candidate. Extraction alone does not approve facts or change active knowledge.
