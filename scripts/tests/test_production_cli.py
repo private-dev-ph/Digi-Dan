@@ -10,7 +10,7 @@ from unittest.mock import patch
 from api.core.config import Settings
 from api.knowledge.ports import VersioningError
 from api.tools import knowledge_production as cli
-from tests.test_stage3_versioning import candidate as valid_candidate, PROBES
+from scripts.tests.test_knowledge_versioning import candidate as valid_candidate, PROBES
 
 
 def candidate_value():
@@ -182,7 +182,7 @@ class ProductionCliTests(unittest.TestCase):
 
     def test_cached_reader_requires_receipt_and_still_queries_storage(self):
         from api.knowledge.versioning import KnowledgeService
-        from tests.test_stage3_versioning import Registry, Vectors, Embedder, PROFILE
+        from scripts.tests.test_knowledge_versioning import Registry, Vectors, Embedder, PROFILE
         registry, vectors = Registry(), Vectors()
         service = KnowledgeService(registry, vectors, Embedder())
         first = service.sync(valid_candidate(), PROFILE, expected_generation=0,
@@ -205,7 +205,7 @@ class ProductionCliTests(unittest.TestCase):
 
     def test_cached_reader_rechecks_receipt_after_source_verification(self):
         from api.knowledge.versioning import KnowledgeService
-        from tests.test_stage3_versioning import Registry, Vectors, Embedder, PROFILE
+        from scripts.tests.test_knowledge_versioning import Registry, Vectors, Embedder, PROFILE
         registry, vectors = Registry(), Vectors()
         service = KnowledgeService(registry, vectors, Embedder())
         first = service.sync(valid_candidate(), PROFILE, expected_generation=0,

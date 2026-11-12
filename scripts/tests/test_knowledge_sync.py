@@ -5,10 +5,10 @@ from unittest.mock import Mock, patch
 from api.tools import knowledge_sync as sync
 from api.knowledge.ports import VersioningError
 from api.knowledge.versioning import _validate as actual_validate
-from tests.test_stage3_versioning import PROFILE, PROBES, candidate as valid_candidate
+from scripts.tests.test_knowledge_versioning import PROFILE, PROBES, candidate as valid_candidate
 
 
-class Stage4SyncTests(unittest.TestCase):
+class SyncSyncTests(unittest.TestCase):
     def setUp(self):
         self.worker = object()
         self.runtime = object()

@@ -47,7 +47,7 @@ The Gemini profile is `gemini-embedding-001`, normally 768 dimensions, with poli
 ## Local validation
 
 ```powershell
-.\.venv\Scripts\python.exe tests/run_stage3_isolated.py
+.\.venv\Scripts\python.exe scripts/run_tests.py
 ```
 
 The isolated suite runs the adapters with mocked HTTP/SDK responses and the coordinator through all three adapters with simulated services. It covers scoped namespaces, read-only restrictions, configuration errors, retries, malformed responses, version preparation, activation, retrieval and preservation of an active version after a failed successor. The runner blocks and counts outbound socket attempts. Mocked Redis responses do not execute Lua or prove real cloud atomicity.

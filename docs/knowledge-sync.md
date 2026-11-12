@@ -80,7 +80,7 @@ The portfolio workflow `notify-knowledge-sync.yml` dispatches Digi-Dan after suc
 Run the offline suite without network access with:
 
 ```powershell
-.\.venv\Scripts\python.exe tests\run_stage4_isolated.py
+.\.venv\Scripts\python.exe scripts\run_tests.py
 ```
 
 This validates synchronization behavior and fails if a test attempts a network connection. It does not validate production credentials or perform a hosted rollout.

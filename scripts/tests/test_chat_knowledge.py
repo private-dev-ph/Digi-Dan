@@ -13,7 +13,7 @@ from api.query import rag
 from api.tools import upload_vectorstore, vector_store
 
 
-class Stage3ChatTests(unittest.TestCase):
+class KnowledgeChatTests(unittest.TestCase):
     def test_legacy_default_works(self):
         with patch.object(rag, "query_sources", return_value=[]), patch.object(rag, "generate_answer", return_value="hello"):
             response = rag.answer_question(ChatRequest(message="hi"), Settings())

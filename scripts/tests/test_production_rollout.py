@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 from api.knowledge.ports import VersioningError
 from api.knowledge.production_rollout import ProductionRollout, create_production_rollout
 from api.knowledge.versioning import KnowledgeService
-from tests.test_stage3_versioning import Embedder, PROBES, PROFILE, Registry, Vectors, candidate
+from scripts.tests.test_knowledge_versioning import Embedder, PROBES, PROFILE, Registry, Vectors, candidate
 
 
 class Verifier:

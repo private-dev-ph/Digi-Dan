@@ -193,6 +193,24 @@ Legacy compatibility endpoint, disabled with HTTP 409 in versioned mode. In lega
 | `CHAT_RATE_LIMIT_BACKEND`, `CHAT_CLIENT_IDENTITY_MODE` | Defaults `memory`/`legacy` for local use; production uses shared `redis`/`trusted_proxy` enforcement. |
 | `RATE_LIMIT_REDIS_REST_URL`, `RATE_LIMIT_REDIS_REST_TOKEN`, `RATE_LIMIT_REDIS_TIMEOUT_SECONDS` | Separate restricted limiter connection; two-second timeout by default. See [shared rate limiting](docs/shared-rate-limiting.md). |
 
+## Testing
+
+Run the isolated regression suite from the repository root after installing the core dependencies and the `pypdf` version pinned in `requirements-resume.txt`. The isolated tests mock OCR and do not require Tesseract, Pillow, or a live PDF renderer:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/run_tests.py
+```
+
+Test modules live in `scripts/tests/` and are named by behavior, such as knowledge synchronization, conversation continuity, provider fallback, and rate limiting. The runner blocks outbound network connections, including attempts caught by application code, and uses simulated cloud services without consuming API quota.
+
+To focus on a component:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/run_tests.py --pattern "test_probe_cache.py"
+```
+
+`scripts/run_redis_checks.py` is a separate, opt-in integration check for a new, empty Redis server bound to `127.0.0.1`. It writes synthetic data and creates a test ACL user; never point it at a shared or production database. Run it with `--help` for its port and report options. It is not part of the isolated suite.
+
 ## Operations
 
 ### Versioned knowledge synchronization

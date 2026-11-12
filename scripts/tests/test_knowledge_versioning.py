@@ -106,7 +106,7 @@ class FakeClock:
         return self.now
 
 
-class Stage3VersioningTests(unittest.TestCase):
+class KnowledgeVersioningTests(unittest.TestCase):
     def setUp(self):
         self.network_blocker = patch("socket.create_connection", side_effect=AssertionError("network access is forbidden in isolated tests"))
         self.network_blocker.start()

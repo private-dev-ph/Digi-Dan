@@ -1,4 +1,4 @@
-"""Coordinator integration against real Stage3 lifecycle and SyncJournal."""
+"""Coordinator integration against real Knowledge lifecycle and SyncJournal."""
 
 from __future__ import annotations
 
@@ -13,8 +13,8 @@ from api.knowledge.manifest import canonical_hash
 from api.knowledge.production_rollout import ProductionRollout
 from api.knowledge.sync_journal import SyncJournal
 from api.tools import knowledge_production, knowledge_sync
-from tests.test_stage3_production_staging import MutableVerifier, make_stager
-from tests.test_stage3_versioning import PROBES, candidate as base_candidate
+from scripts.tests.test_knowledge_preparation import MutableVerifier, make_stager
+from scripts.tests.test_knowledge_versioning import PROBES, candidate as base_candidate
 
 
 SITE = "https://zachcodes.vercel.app"
@@ -39,7 +39,7 @@ def make_candidate(ids: tuple[str, ...], label: str) -> dict:
     return result
 
 
-class CoordinatorStage4IntegrationTests(unittest.TestCase):
+class CoordinatorSyncIntegrationTests(unittest.TestCase):
     def setUp(self):
         self.verifier = MutableVerifier()
         self.stager, self.registry, self.index, _ = make_stager(verifier=self.verifier)
@@ -49,7 +49,7 @@ class CoordinatorStage4IntegrationTests(unittest.TestCase):
         self.activation_calls = []
         self.after_stage = None
         self.journal = SyncJournal(self.registry)
-        self.temp = tempfile.TemporaryDirectory(prefix="stage4-coordinator-")
+        self.temp = tempfile.TemporaryDirectory(prefix="sync-coordinator-")
         self.addCleanup(self.temp.cleanup)
 
         self.env = patch.dict(os.environ, {

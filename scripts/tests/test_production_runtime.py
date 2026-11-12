@@ -13,7 +13,7 @@ from api.query import rag
 ORIGIN = {"origin": "https://zachcodes.vercel.app"}
 
 
-class Stage3ProductionRuntimeTests(unittest.TestCase):
+class KnowledgeProductionRuntimeTests(unittest.TestCase):
     def client(self, settings, service=None):
         return TestClient(create_app(settings=settings, knowledge_service=service))
 

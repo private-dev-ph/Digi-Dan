@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import httpx
 
-repo = Path(__file__).resolve().parents[1]
+repo = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(repo))
 
 from api.core.config import Settings

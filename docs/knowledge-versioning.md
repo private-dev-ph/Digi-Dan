@@ -59,9 +59,9 @@ The SQLite registry uses transactions and revision checks across separate connec
 ## Local validation
 
 ```powershell
-python tests/run_stage3_isolated.py
+python scripts/run_tests.py
 ```
 
-The runner discovers `test_stage3*.py` and blocks outbound socket connections, counting attempts even if an application catches the exception. Python 3.10 on Windows uses an internal loopback socket pair to wake its event loop; only that standard-library operation is exempted. TestClient HTTP requests execute through its in-process transport. No Upstash or Gemini access is required.
+The runner discovers `test_*.py` and blocks outbound socket connections, counting attempts even if an application catches the exception. Python 3.10 on Windows uses an internal loopback socket pair to wake its event loop; only that standard-library operation is exempted. TestClient HTTP requests execute through its in-process transport. No Upstash or Gemini access is required.
 
 Coverage includes SQLite restart durability and concurrent compare-and-swap, build/activation separation, invalid candidates and vectors, upload/indexing/retrieval failures, source changes, stale activation, unchanged builds, rollback, cleanup protection, fixed-version retrieval and legacy write guards. Source preparation and assembly tests remain part of regression verification.

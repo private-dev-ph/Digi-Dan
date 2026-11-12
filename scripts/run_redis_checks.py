@@ -17,6 +17,7 @@ from api.endpoint.application import create_app
 from api.query import rag
 from api.tools.rate_limit import RedisRateLimiter, RateLimitUnavailable
 
+
 PORT = None
 PREFIX = 'digi-dan:ratelimit:test:chat:v1:'
 IDENTITY = 'a' * 64
@@ -94,7 +95,7 @@ def main():
     PORT = args.port
     assert command('PING') == 'PONG'
     assert command('DBSIZE') == 0, 'Refusing to modify a nonempty Redis database; start a new disposable container'
-    assert command('ACL', 'GETUSER', 'stage5-limiter') is None, 'Refusing to replace an existing ACL user'
+    assert command('ACL', 'GETUSER', 'local-limiter') is None, 'Refusing to replace an existing ACL user'
     sentinel = 'digi-dan:knowledge:production:registry'
     command('SET', sentinel, 'untouched synthetic knowledge sentinel')
     first, first_client = store()
@@ -136,7 +137,7 @@ def main():
     record('corrupt counters and expiries fail closed without mutation')
 
     # Local-only credential; verify the script works with a narrow command/key ACL.
-    auth = ('stage5-limiter','synthetic-local-password')
+    auth = ('local-limiter','synthetic-local-password')
     command('ACL','SETUSER',auth[0],'reset','on','>'+auth[1],
             '~'+PREFIX+'*','+eval','+get','+set','+incr','+pttl')
     restricted, restricted_client = store(auth=auth)
@@ -179,3 +180,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+

@@ -13,8 +13,8 @@ from api.knowledge.cloud_vectors import UpstashVectorStore
 from api.knowledge.ports import VersioningError
 from api.knowledge.versioning import KnowledgeService
 from api.tools import vector_store
-from tests.test_stage3_cloud_registry import MockRedis, registry
-from tests.test_stage3_versioning import candidate, PROBES
+from scripts.tests.test_cloud_registry import MockRedis, registry
+from scripts.tests.test_knowledge_versioning import candidate, PROBES
 
 
 class SimulatedIndex:

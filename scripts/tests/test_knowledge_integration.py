@@ -53,7 +53,7 @@ def candidate(fact_id, text):
     }
 
 
-class Stage3IntegrationTests(unittest.TestCase):
+class KnowledgeIntegrationTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         root = Path(self.temp.name)
