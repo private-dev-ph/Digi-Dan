@@ -9,8 +9,13 @@
   "images": [
     {
       "src": "docs/assets/digidan-chat.png",
-      "alt": "Digi-Dan portfolio chat interface",
-      "caption": "Digi-Dan portfolio chat interface."
+      "alt": "Digi-Dan answering a portfolio question beside its project page",
+      "caption": "The current portfolio workspace with Digi-Dan answering a question about AOI results."
+    },
+    {
+      "src": "docs/assets/digidan-demo.apng",
+      "alt": "Animated Digi-Dan conversation showing an AOI question and a contextual follow-up",
+      "caption": "A recorded portfolio conversation with a contextual follow-up. Pauses shortened for presentation."
     }
   ],
   "sections": [
@@ -20,11 +25,21 @@
     {
       "type": "image",
       "title": "Grounded portfolio conversations",
-      "summary": "The backend supplies retrieval-grounded answers to a portfolio chat experience.",
+      "summary": "Digi-Dan answers questions alongside the portfolio project page, keeping the conversation in the same workspace.",
       "image": {
         "src": "docs/assets/digidan-chat.png",
-        "alt": "Digi-Dan portfolio chat interface",
-        "caption": "Portfolio chat interface powered by Digi-Dan."
+        "alt": "Digi-Dan answering a portfolio question beside its project page",
+        "caption": "The current portfolio workspace with Digi-Dan answering a question about AOI results."
+      }
+    },
+    {
+      "type": "image",
+      "title": "Conversation continuity in action",
+      "summary": "Ask about a project, then follow up without repeating its name. This recording shows the current chat interface using a live AOI conversation.",
+      "image": {
+        "src": "docs/assets/digidan-demo.apng",
+        "alt": "Animated Digi-Dan conversation showing an AOI question and a contextual follow-up",
+        "caption": "A recorded portfolio conversation with a contextual follow-up. Pauses shortened for presentation."
       }
     },
     {
@@ -71,7 +86,7 @@
     "Vercel",
     "GitHub Actions"
   ],
-  "role": "Led the RAG backend build and portfolio-assistant integration across retrieval and generation, ingestion tooling, security boundaries, and the local-to-Vercel deployment path.",
+  "role": "Led the RAG End-to-End build and portfolio-assistant integration across retrieval and generation, ingestion tooling, security boundaries, and the local-to-Vercel deployment path.",
   "technicalHighlights": [
     "Portfolio exports, reviewed resume material, and approved supplements are assembled into a versioned candidate and validated before activation.",
     "A verified activation switches the active knowledge version only after readiness checks, preserving the last good version on candidate failure.",
@@ -100,6 +115,8 @@
     "Returns source records for retrieved chunks so answers can be inspected against the supplied evidence, without implying statement-level citations or a guarantee against hallucinations."
   ],
   "lessonsLearned": [
+    "How to implement RAG to LLMs through Redis-based vector retrieval, with a fallback to generation using the same retrieved evidence.",
+    "CI/CD pipelines can assemble a versioned candidate from multiple sources, validate it, and activate it safely without replacing the last good version on failure.",
     "A versioned candidate and explicit activation gate make content publication safer than direct in-place updates.",
     "Resume edits need review even when other portfolio facts can synchronize automatically.",
     "Provider fallback is safest when it reuses the same retrieved evidence and context.",
